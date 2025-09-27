@@ -321,4 +321,26 @@
     };
   </script>
 </body>
+  <body>
+  <!-- ... your HTML content ... -->
+
+  <script>
+    // Firebase initialization code here (firebase.initializeApp etc)
+
+    const auth = firebase.auth();
+
+    // Add the signup and login event listeners and auth state change here
+    document.getElementById('signupForm').addEventListener('submit', function(e) {
+      // your signup code here
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      // your login code here
+    });
+
+    auth.onAuthStateChanged(function(user) {
+      // your auth state handling code here
+    });
+  </script>
+</body>
 </html>
