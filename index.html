@@ -12,7 +12,7 @@
   <!-- Firebase Analytics SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.19.1/firebase-analytics.js"></script>
   <script>
-    // Your Firebase config (replace with your actual config)
+    // Your Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyBytov9p2TGFudvnwQZ1hSi5f9oXaSKDAQ",
       authDomain: "deepnet-social-backend.firebaseapp.com",
@@ -29,9 +29,8 @@
   </script>
 </head>
 <body>
-
   <!-- Login Modal -->
-  <div id="loginModal" class="modal">
+  <div id="loginModal" class="modal" style="display: block;">
     <div class="modal-content">
       <div class="modal-header">
         <h2>Welcome to DeepNet Social</h2>
@@ -53,6 +52,7 @@
             <input type="password" class="form-control" id="loginPassword" placeholder="Enter password" required />
           </div>
           <button type="submit" class="btn btn--primary btn--full-width">Login</button>
+          <div id="loginMessage" style="color:red;"></div>
         </form>
         
         <form id="signupForm" class="auth-form hidden">
@@ -65,56 +65,11 @@
             <input type="password" class="form-control" id="signupPassword" placeholder="Create a password" required />
           </div>
           <button type="submit" class="btn btn--primary btn--full-width">Sign Up</button>
+          <div id="signupMessage" style="color:red;"></div>
         </form>
       </div>
     </div>
   </div>
-<script>
-  // ... existing Firebase initialization code ...
-
-  // Authentication UI handlers and Firebase auth event listeners here:
-  
-  // Signup form handler
-  document.getElementById('signupForm').addEventListener('submit', e => {
-    e.preventDefault();
-    const email = document.getElementById('signupEmail').value;
-    const password = document.getElementById('signupPassword').value;
-    firebase.auth().createUserWithEmailAndPassword(email, password)
-      .then(userCredential => {
-        alert(`Signup successful: ${userCredential.user.email}`);
-        // Additional UI updates
-      })
-      .catch(error => {
-        alert(`Error: ${error.message}`);
-      });
-  });
-
-  // Login form handler
-  document.getElementById('loginForm').addEventListener('submit', e => {
-    e.preventDefault();
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-    firebase.auth().signInWithEmailAndPassword(email, password)
-      .then(userCredential => {
-        alert(`Login successful: ${userCredential.user.email}`);
-        // Additional UI updates
-      })
-      .catch(error => {
-        alert(`Error: ${error.message}`);
-      });
-  });
-
-  // Auth state listener
-  firebase.auth().onAuthStateChanged(user => {
-    if (user) {
-      console.log("User logged in:", user.email);
-      // Show app UI or update accordingly
-    } else {
-      console.log("User logged out");
-      // Show login modal or forms
-    }
-  });
-</script>
 
   <!-- Main App Layout -->
   <div id="app" class="app-container hidden">
@@ -187,7 +142,6 @@
             </div>
           </div>
         </div>
-
         <!-- Posts Feed -->
         <div id="postsContainer" class="posts-container">
           <!-- Posts will be dynamically inserted here -->
@@ -222,16 +176,13 @@
       </aside>
     </section>
   </div>
-
   <script src="app.js"></script>
   <script>
-    // Authentication UI handlers
     function switchAuthTab(tab) {
       const loginForm = document.getElementById('loginForm');
       const signupForm = document.getElementById('signupForm');
       const loginTab = document.querySelector('.auth-tab:nth-child(1)');
       const signupTab = document.querySelector('.auth-tab:nth-child(2)');
-
       if (tab === 'login') {
         loginForm.classList.remove('hidden');
         signupForm.classList.add('hidden');
@@ -244,16 +195,12 @@
         signupTab.classList.add('active');
       }
     }
-
     function closeLoginModal() {
       document.getElementById('loginModal').style.display = 'none';
     }
-
     function openLoginModal() {
       document.getElementById('loginModal').style.display = 'block';
     }
-
-    // Firebase Signup
     document.getElementById('signupForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const email = document.getElementById('signupEmail').value;
@@ -268,8 +215,6 @@
           alert(`Error: ${error.message}`);
         });
     });
-
-    // Firebase Login
     document.getElementById('loginForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const email = document.getElementById('loginEmail').value;
@@ -284,8 +229,6 @@
           alert(`Error: ${error.message}`);
         });
     });
-
-    // Listen for auth state changes
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
         console.log(`User logged in: ${user.email}`);
@@ -294,14 +237,10 @@
         openLoginModal();
       }
     });
-
-    // Show app and hide login modal
     function showApp() {
       document.getElementById('app').classList.remove('hidden');
       document.getElementById('loginModal').style.display = 'none';
     }
-
-    // Logout user
     function logoutUser() {
       firebase.auth().signOut().then(() => {
         alert('Logged out successfully');
@@ -309,8 +248,6 @@
         openLoginModal();
       });
     }
-
-    // Initialize UI state on page load
     window.onload = () => {
       switchAuthTab('login');
       firebase.auth().onAuthStateChanged(user => {
@@ -319,28 +256,6 @@
          }
       });
     };
-  </script>
-</body>
-  <body>
-  <!-- ... your HTML content ... -->
-
-  <script>
-    // Firebase initialization code here (firebase.initializeApp etc)
-
-    const auth = firebase.auth();
-
-    // Add the signup and login event listeners and auth state change here
-    document.getElementById('signupForm').addEventListener('submit', function(e) {
-      // your signup code here
-    });
-
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-      // your login code here
-    });
-
-    auth.onAuthStateChanged(function(user) {
-      // your auth state handling code here
-    });
   </script>
 </body>
 </html>
