@@ -1,269 +1,280 @@
-// App functionality and UI interactions
-
-// Global app state
-const appState = {
-  currentUser: null,
-  posts: [],
-  currentSection: 'home'
-};
-
-// UI Helper functions
-function showSection(section) {
-  appState.currentSection = section;
-  
-  // Update active nav link
-  document.querySelectorAll('.nav-link').forEach(link => {
-    link.classList.remove('active');
-  });
-  
-  document.querySelector(`[onclick="showSection('${section}')"]`).classList.add('active');
-  
-  // Here you would typically show/hide different content sections
-  console.log(`Showing section: ${section}`);
-}
-
-function toggleTheme() {
-  // Theme toggle functionality
-  const body = document.body;
-  
-  if (body.classList.contains('light-theme')) {
-    body.classList.remove('light-theme');
-    localStorage.setItem('theme', 'dark');
-  } else {
-    body.classList.add('light-theme');
-    localStorage.setItem('theme', 'light');
-  }
-}
-
-function filterFeed(filter) {
-  // Update active sidebar link
-  document.querySelectorAll('.sidebar-link').forEach(link => {
-    link.classList.remove('active');
-  });
-  
-  document.querySelector(`[onclick="filterFeed('${filter}')"]`).classList.add('active');
-  
-  // Filter feed content
-  console.log(`Filtering feed: ${filter}`);
-  // Implementation would go here
-}
-
-function showSettings() {
-  console.log('Showing settings');
-  // Implementation would go here
-}
-
-// Post creation functionality
-function createPost() {
-  const postContent = document.getElementById('postContent').value.trim();
-  
-  if (!postContent) {
-    alert('Please enter some content for your post');
-    return;
-  }
-  
-  const privacyLevel = document.querySelector('.privacy-select').value;
-  
-  // Create post object
-  const newPost = {
-    id: Date.now().toString(),
-    content: postContent,
-    privacy: privacyLevel,
-    author: appState.currentUser?.email || 'Anonymous',
-    timestamp: new Date(),
-    likes: 0,
-    comments: []
-  };
-  
-  // Add to posts array
-  appState.posts.unshift(newPost);
-  
-  // Clear the composer
-  document.getElementById('postContent').value = '';
-  
-  // Render the new post
-  renderPosts();
-  
-  console.log('Post created:', newPost);
-}
-
-function togglePostType(type) {
-  // Update active composer button
-  document.querySelectorAll('.composer-btn').forEach(btn => {
-    btn.style.backgroundColor = '';
-  });
-  
-  event.target.style.backgroundColor = '#238636';
-  
-  // You could modify the composer UI based on type
-  console.log(`Post type selected: ${type}`);
-}
-
-// Render posts in feed
-function renderPosts() {
-  const postsContainer = document.getElementById('postsContainer');
-  
-  if (appState.posts.length === 0) {
-    postsContainer.innerHTML = `
-      <div class="card" style="text-align: center; padding: 40px;">
-        <h3 style="color: #8b949e; margin-bottom: 8px;">No posts yet</h3>
-        <p style="color: #8b949e; font-size: 14px;">Share your first research insight above!</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DeepNet Social - AI Research Community</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Login Modal -->
+  <div id="loginModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Welcome to DeepNet Social</h2>
+        <button type="button" class="modal-close" onclick="closeLoginModal()">&times;</button>
       </div>
-    `;
-    return;
-  }
-  
-  postsContainer.innerHTML = appState.posts.map(post => `
-    <div class="card post">
-      <div class="post-header" style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-        <div class="user-avatar">👩‍🔬</div>
-        <div>
-          <div style="font-weight: 600; font-size: 14px;">${post.author}</div>
-          <div style="color: #8b949e; font-size: 12px;">${formatDate(post.timestamp)}</div>
+      <div class="modal-body">
+        <div class="auth-tabs">
+          <button type="button" class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+          <button type="button" class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
+        </div>
+        
+        <form id="loginForm" class="auth-form">
+          <div class="form-group">
+            <label class="form-label" for="loginEmail">Email</label>
+            <input type="email" class="form-control" id="loginEmail" placeholder="Enter your email" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="loginPassword">Password</label>
+            <input type="password" class="form-control" id="loginPassword" placeholder="Enter password" required />
+          </div>
+          <button type="submit" class="btn btn--primary btn--full-width">Login</button>
+          <div id="loginMessage"></div>
+        </form>
+        
+        <form id="signupForm" class="auth-form hidden">
+          <div class="form-group">
+            <label class="form-label" for="signupEmail">Email</label>
+            <input type="email" class="form-control" id="signupEmail" placeholder="Enter your email" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="signupPassword">Password</label>
+            <input type="password" class="form-control" id="signupPassword" placeholder="Create a password" minlength="6" required />
+          </div>
+          <button type="submit" class="btn btn--primary btn--full-width">Sign Up</button>
+          <div id="signupMessage"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App Layout -->
+  <div id="app" class="app-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <div class="header-left">
+          <div class="logo">
+            <span class="logo-icon">🧠</span>
+            <span class="logo-text">DeepNet Social</span>
+          </div>
+        </div>
+        <div class="header-center">
+          <div class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search posts, users, topics..." />
+            <button type="button" class="search-btn">🔍</button>
+          </div>
+        </div>
+        <div class="header-right">
+          <nav class="nav">
+            <a href="#" class="nav-link active" onclick="showSection('home')">Home</a>
+            <a href="#" class="nav-link" onclick="showSection('profile')">Profile</a>
+            <a href="#" class="nav-link" onclick="showSection('research')">Research</a>
+            <a href="#" class="nav-link" onclick="showSection('messages')">Messages</a>
+          </nav>
+          <button type="button" class="theme-toggle" onclick="toggleTheme()">🌙</button>
+          <div class="user-avatar" id="currentUserAvatar">👩‍🔬</div>
+          <button type="button" class="logout-btn" onclick="logoutUser()">Logout</button>
         </div>
       </div>
-      <div class="post-content" style="margin-bottom: 16px; line-height: 1.5;">
-        ${post.content}
-      </div>
-      <div class="post-actions" style="display: flex; gap: 16px; color: #8b949e; font-size: 14px;">
-        <button onclick="likePost('${post.id}')" style="background: none; border: none; color: inherit; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-          ❤️ ${post.likes}
-        </button>
-        <button onclick="commentPost('${post.id}')" style="background: none; border: none; color: inherit; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-          💬 ${post.comments.length}
-        </button>
-        <button onclick="sharePost('${post.id}')" style="background: none; border: none; color: inherit; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-          🔄 Share
-        </button>
-      </div>
-    </div>
-  `).join('');
-}
+    </header>
 
-// Post interaction functions
-function likePost(postId) {
-  const post = appState.posts.find(p => p.id === postId);
-  if (post) {
-    post.likes++;
-    renderPosts();
-  }
-}
+    <!-- Main Content -->
+    <section id="main-content">
+      <!-- Left Sidebar -->
+      <aside class="left-sidebar">
+        <ul class="sidebar-menu">
+          <li><a href="#" class="sidebar-link active" onclick="filterFeed('all')">📰 My Feed</a></li>
+          <li><a href="#" class="sidebar-link" onclick="filterFeed('trending')">📈 Trending Research</a></li>
+          <li><a href="#" class="sidebar-link" onclick="filterFeed('communities')">👥 AI Communities</a></li>
+          <li><a href="#" class="sidebar-link" onclick="filterFeed('bookmarks')">🔖 Bookmarks</a></li>
+          <li><a href="#" class="sidebar-link" onclick="showSettings()">⚙️ Settings</a></li>
+        </ul>
+      </aside>
 
-function commentPost(postId) {
-  const comment = prompt('Enter your comment:');
-  if (comment) {
-    const post = appState.posts.find(p => p.id === postId);
-    if (post) {
-      post.comments.push({
-        author: appState.currentUser?.email || 'Anonymous',
-        content: comment,
-        timestamp: new Date()
+      <!-- Feed Container -->
+      <main class="feed-container">
+        <!-- Post Composer -->
+        <div class="post-composer card">
+          <div class="composer-header">
+            <div class="user-avatar">👩‍🔬</div>
+            <div class="composer-input-container">
+              <textarea id="postContent" class="composer-input" placeholder="Share your research insights..."></textarea>
+            </div>
+          </div>
+          <div class="composer-tools">
+            <div class="composer-options">
+              <button type="button" class="composer-btn" onclick="togglePostType('text')">📝 Text</button>
+              <button type="button" class="composer-btn" onclick="togglePostType('code')">💻 Code</button>
+              <button type="button" class="composer-btn" onclick="togglePostType('paper')">📄 Paper</button>
+              <button type="button" class="composer-btn" onclick="togglePostType('poll')">📊 Poll</button>
+            </div>
+            <div class="composer-actions">
+              <select class="privacy-select">
+                <option value="public">🌍 Public</option>
+                <option value="research">🔬 Research Community</option>
+                <option value="private">🔒 Private</option>
+              </select>
+              <button type="button" class="btn btn--primary" onclick="createPost()">Post</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Posts Feed -->
+        <div id="postsContainer" class="posts-container">
+          <!-- Posts will be dynamically inserted here -->
+        </div>
+      </main>
+
+      <!-- Right Sidebar -->
+      <aside class="right-sidebar">
+        <div class="sidebar-card card">
+          <h3>Trending Topics</h3>
+          <div id="trendingTopics" class="trending-topics"></div>
+        </div>
+        <div class="sidebar-card card">
+          <h3>Suggested Connections</h3>
+          <div id="suggestedUsers" class="suggested-users"></div>
+        </div>
+        <div class="sidebar-card card">
+          <h3>Research Highlights</h3>
+          <div class="research-highlights">
+            <div class="highlight-item">
+              <h4>NeurIPS 2025 Submissions</h4>
+              <p>Deadline: September 28, 2025</p>
+            </div>
+            <div class="highlight-item">
+              <h4>ICML Workshop Series</h4>
+              <p>Call for papers now open</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </div>
+
+  <!-- Firebase CDN (Version 8 - Working) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
+  
+  <!-- App Scripts -->
+  <script src="app.js"></script>
+
+  <!-- Firebase Authentication Script -->
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBytov9p2TGFudvnwQZ1hSi5f9oXaSKDAQ",
+      authDomain: "deepnet-social-backend.firebaseapp.com",
+      projectId: "deepnet-social-backend",
+      storageBucket: "deepnet-social-backend.firebasestorage.app",
+      messagingSenderId: "689173633913",
+      appId: "1:689173633913:web:b5290dc64ea8fd2b2f2da8",
+      measurementId: "G-B1ENWRY6JK"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+    const auth = firebase.auth();
+
+    // UI Functions
+    function switchAuthTab(tab) {
+      const loginForm = document.getElementById('loginForm');
+      const signupForm = document.getElementById('signupForm');
+      const loginTab = document.querySelector('.auth-tab:nth-child(1)');
+      const signupTab = document.querySelector('.auth-tab:nth-child(2)');
+      
+      if (tab === 'login') {
+        loginForm.classList.remove('hidden');
+        signupForm.classList.add('hidden');
+        loginTab.classList.add('active');
+        signupTab.classList.remove('active');
+      } else {
+        loginForm.classList.add('hidden');
+        signupForm.classList.remove('hidden');
+        loginTab.classList.remove('active');
+        signupTab.classList.add('active');
+      }
+    }
+
+    function closeLoginModal() {
+      document.getElementById('loginModal').style.display = 'none';
+    }
+
+    function openLoginModal() {
+      document.getElementById('loginModal').style.display = 'block';
+    }
+
+    function showApp() {
+      document.getElementById('app').classList.remove('hidden');
+      closeLoginModal();
+    }
+
+    function logoutUser() {
+      auth.signOut().then(() => {
+        document.getElementById('app').classList.add('hidden');
+        openLoginModal();
+        alert('Logged out successfully');
       });
-      renderPosts();
     }
-  }
-}
 
-function sharePost(postId) {
-  console.log(`Sharing post: ${postId}`);
-  alert('Post shared! (Feature would be implemented here)');
-}
+    // Firebase Authentication
+    document.getElementById('signupForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+      const msg = document.getElementById('signupMessage');
+      
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          msg.style.color = 'green';
+          msg.textContent = `✅ Account created: ${userCredential.user.email}`;
+          setTimeout(() => showApp(), 1000);
+        })
+        .catch(error => {
+          msg.style.color = 'red';
+          msg.textContent = `❌ Error: ${error.message}`;
+        });
+    });
 
-// Utility functions
-function formatDate(date) {
-  const now = new Date();
-  const diff = now - date;
-  
-  if (diff < 60000) return 'Just now';
-  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
-  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
-  
-  return date.toLocaleDateString();
-}
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      const msg = document.getElementById('loginMessage');
+      
+      auth.signInWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          msg.style.color = 'green';
+          msg.textContent = `✅ Login successful: ${userCredential.user.email}`;
+          setTimeout(() => showApp(), 1000);
+        })
+        .catch(error => {
+          msg.style.color = 'red';
+          msg.textContent = `❌ Error: ${error.message}`;
+        });
+    });
 
-// Load sample data for demonstration
-function loadSampleData() {
-  const samplePosts = [
-    {
-      id: '1',
-      content: 'Excited to share our new research on transformer architectures! We achieved a 15% improvement in efficiency while maintaining accuracy. 🚀 #AI #Research',
-      privacy: 'public',
-      author: 'Dr. Sarah Chen',
-      timestamp: new Date(Date.now() - 3600000), // 1 hour ago
-      likes: 12,
-      comments: [
-        { author: 'John Doe', content: 'Fascinating work!', timestamp: new Date() }
-      ]
-    },
-    {
-      id: '2',
-      content: 'Looking for collaborators on a computer vision project involving medical imaging. DM if interested! #ComputerVision #Healthcare',
-      privacy: 'research',
-      author: 'Prof. Michael Rodriguez',
-      timestamp: new Date(Date.now() - 7200000), // 2 hours ago
-      likes: 8,
-      comments: []
-    }
-  ];
-  
-  appState.posts = samplePosts;
-  renderPosts();
-}
+    // Auth state listener
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        console.log(`User logged in: ${user.email}`);
+        showApp();
+      } else {
+        document.getElementById('app').classList.add('hidden');
+        openLoginModal();
+      }
+    });
 
-// Initialize app on page load
-document.addEventListener('DOMContentLoaded', () => {
-  // Load saved theme
-  const savedTheme = localStorage.getItem('theme');
-  if (savedTheme === 'light') {
-    document.body.classList.add('light-theme');
-  }
-  
-  // Load sample data after a short delay (to simulate loading)
-  setTimeout(() => {
-    loadSampleData();
-  }, 1000);
-});
-
-// Update trending topics
-function updateTrendingTopics() {
-  const trendingContainer = document.getElementById('trendingTopics');
-  const topics = [
-    '#MachineLearning',
-    '#NeurIPS2025',
-    '#ComputerVision',
-    '#NLP',
-    '#DeepLearning',
-    '#AIResearch'
-  ];
-  
-  trendingContainer.innerHTML = topics.map(topic => 
-    `<div style="padding: 8px 0; color: #58a6ff; cursor: pointer;">${topic}</div>`
-  ).join('');
-}
-
-// Update suggested users
-function updateSuggestedUsers() {
-  const suggestedContainer = document.getElementById('suggestedUsers');
-  const users = [
-    { name: 'Dr. Lisa Wang', field: 'Computer Vision' },
-    { name: 'Prof. James Smith', field: 'NLP' },
-    { name: 'Dr. Anna Kumar', field: 'Robotics' }
-  ];
-  
-  suggestedContainer.innerHTML = users.map(user => `
-    <div style="display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #30363d;">
-      <div class="user-avatar" style="width: 24px; height: 24px; font-size: 12px;">👤</div>
-      <div style="flex: 1;">
-        <div style="font-weight: 500; font-size: 13px;">${user.name}</div>
-        <div style="color: #8b949e; font-size: 11px;">${user.field}</div>
-      </div>
-      <button style="padding: 4px 8px; background: #238636; border: none; border-radius: 4px; color: white; font-size: 11px; cursor: pointer;">Follow</button>
-    </div>
-  `).join('');
-}
-
-// Initialize dynamic content
-setTimeout(() => {
-  updateTrendingTopics();
-  updateSuggestedUsers();
-}, 500);
+    // Initialize on page load
+    window.onload = () => {
+      switchAuthTab('login');
+      // Show app by default for development (remove this line for production)
+      // showApp();
+    };
+  </script>
+</body>
+</html>
