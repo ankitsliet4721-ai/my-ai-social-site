@@ -1,1 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DeepNet Social - Firebase Login</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
+      background: #0f1419; 
+      color: #ffffff; 
+      min-height: 100vh; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+    }
+    .container { 
+      background: #1a1f29; 
+      padding: 40px; 
+      border-radius: 12px; 
+      width: 400px; 
+      max-width: 90%; 
+    }
+    h1 { text-align: center; margin-bottom: 30px; color: #58a6ff; }
+    .tabs { 
+      display: flex; 
+      margin-bottom: 20px; 
+      background: #0d1117; 
+      border-radius: 8px; 
+      padding: 4px; 
+    }
+    .tab { 
+      flex: 1; 
+      padding: 10px; 
+      text-align: center; 
+      background: none; 
+      border: none; 
+      color: #8b949e; 
+      cursor: pointer; 
+      border-radius: 6px; 
+    }
+    .tab.active { background: #238636; color: white; }
+    .form { margin-bottom: 20px; }
+    .hidden { display: none !important; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: 500; }
+    input { 
+      width: 100%; 
+      padding: 12px; 
+      background: #0d1117; 
+      border: 1px solid #30363d; 
+      border-radius: 6px; 
+      color: #f0f6fc; 
+      font-size: 14px; 
+    }
+    input:focus { outline: none; border-color: #238636; }
+    button { 
+      width: 100%; 
+      padding: 12px; 
+      background: #238636; 
+      border: none; 
+      border-radius: 6px; 
+      color: white; 
+      font-size: 14px; 
+      font-weight: 500; 
+      cursor: pointer; 
+    }
+    button:hover { background: #2ea043; }
+    .message { 
+      margin-top: 10px; 
+      padding: 10px; 
+      border-radius: 6px; 
+      font-size: 14px; 
+    }
+    .success { background: #0f5132; color: #d1e7dd; }
+    .error { background: #842029; color: #f8d7da; }
+    .app { text-align: center; }
+    .logout-btn { 
+      background: #dc3545; 
+      margin-top: 20px; 
+    }
+    .logout-btn:hover { background: #c82333; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="loginSection">
+      <h1>🧠 DeepNet Social</h1>
+      
+      <div class="tabs">
+        <button class="tab active" onclick="showLogin()">Login</button>
+        <button class="tab" onclick="showSignup()">Sign Up</button>
+      </div>
+
+      <div id="loginForm" class="form">
+        <div class="form-group">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" required />
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" required />
+        </div>
+        <button onclick="doLogin()">Login</button>
+        <div id="loginMessage"></div>
+      </div>
+
+      <div id="signupForm" class="form hidden">
+        <div class="form-group">
+          <label for="signupEmail">Email</label>
+          <input type="email" id="signupEmail" required />
+        </div>
+        <div class="form-group">
+          <label for="signupPassword">Password</label>
+          <input type="password" id="signupPassword" minlength="6" required />
+        </div>
+        <button onclick="doSignup()">Sign Up</button>
+        <div id="signupMessage"></div>
+      </div>
+    </div>
+
+    <div id="appSection" class="app hidden">
+      <h1>Welcome! 🎉</h1>
+      <p>You are successfully logged in to DeepNet Social!</p>
+      <p id="userEmail"></p>
+      <button class="logout-btn" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.19.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.19.1/firebase-auth.js"></script>
+  
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBytov9p2TGFudvnwQZ1hSi5f9oXaSKDAQ",
+      authDomain: "deepnet-social-backend.firebaseapp.com",
+      projectId: "deepnet-social-backend",
+      storageBucket: "deepnet-social-backend.firebasestorage.app",
+      messagingSenderId: "689173633913",
+      appId: "1:689173633913:web:b5290dc64ea8fd2b2f2da8",
+      measurementId: "G-B1ENWRY6JK"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    function showLogin() {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('loginForm').classList.remove('hidden');
+      document.getElementById('signupForm').classList.add('hidden');
+    }
+
+    function showSignup() {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('signupForm').classList.remove('hidden');
+      document.getElementById('loginForm').classList.add('hidden');
+    }
+
+    function doSignup() {
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+      const msgDiv = document.getElementById('signupMessage');
+      msgDiv.innerHTML = '';
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(result => {
+          msgDiv.innerHTML = '<div class="message success">✅ Account created successfully!</div>';
+          setTimeout(() => showApp(result.user), 1000);
+        })
+        .catch(error => {
+          msgDiv.innerHTML = '<div class="message error">❌ ' + error.message + '</div>';
+        });
+    }
+
+    function doLogin() {
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      const msgDiv = document.getElementById('loginMessage');
+      msgDiv.innerHTML = '';
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then(result => {
+          msgDiv.innerHTML = '<div class="message success">✅ Login successful!</div>';
+          setTimeout(() => showApp(result.user), 1000);
+        })
+        .catch(error => {
+          msgDiv.innerHTML = '<div class="message error">❌ ' + error.message + '</div>';
+        });
+    }
+
+    function doLogout() {
+      auth.signOut();
+    }
+
+    function showApp(user) {
+      document.getElementById('loginSection').classList.add('hidden');
+      document.getElementById('appSection').classList.remove('hidden');
+      document.getElementById('userEmail').textContent = 'Logged in as: ' + user.email;
+    }
+
+    function showLogin() {
+      document.getElementById('loginSection').classList.remove('hidden');
+      document.getElementById('appSection').classList.add('hidden');
+    }
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        showApp(user);
+      } else {
+        showLoginSection();
+      }
+    });
+
+    function showLoginSection() {
+      document.getElementById('loginSection').classList.remove('hidden');
+      document.getElementById('appSection').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
 
