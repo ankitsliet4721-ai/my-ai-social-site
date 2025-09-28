@@ -3,33 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Firebase Auth Login Example</title>
-</head>
-<body>
-  <h2>Sign Up</h2>
-  <form id="signupForm">
-    <input type="email" id="signupEmail" placeholder="Email" required />
-    <input type="password" id="signupPassword" placeholder="Password" required />
-    <button type="submit">Sign Up</button>
-  </form>
-  <div id="signupMessage" style="color:red;"></div>
-
-  <h2>Login</h2>
-  <form id="loginForm">
-    <input type="email" id="loginEmail" placeholder="Email" required />
-    <input type="password" id="loginPassword" placeholder="Password" required />
-    <button type="submit">Login</button>
-  </form>
-  <div id="loginMessage" style="color:red;"></div>
-
-  <div id="status"></div>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-analytics.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-
-    // Your config values
+  <title>DeepNet Social - AI Research Community</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Firebase core SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.19.1/firebase-app.js"></script>
+  <!-- Firebase Authentication SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.19.1/firebase-auth.js"></script>
+  <!-- Firebase Analytics SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.19.1/firebase-analytics.js"></script>
+  <script>
+    // Your Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyBytov9p2TGFudvnwQZ1hSi5f9oXaSKDAQ",
       authDomain: "deepnet-social-backend.firebaseapp.com",
@@ -39,46 +22,240 @@
       appId: "1:689173633913:web:b5290dc64ea8fd2b2f2da8",
       measurementId: "G-B1ENWRY6JK"
     };
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const analytics = firebase.analytics();
+    const auth = firebase.auth();
+  </script>
+</head>
+<body>
+  <!-- Login Modal -->
+  <div id="loginModal" class="modal" style="display: block;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Welcome to DeepNet Social</h2>
+        <button type="button" class="modal-close" onclick="closeLoginModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="auth-tabs">
+          <button type="button" class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+          <button type="button" class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
+        </div>
+        
+        <form id="loginForm" class="auth-form">
+          <div class="form-group">
+            <label class="form-label" for="loginEmail">Email</label>
+            <input type="email" class="form-control" id="loginEmail" placeholder="Enter your email" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="loginPassword">Password</label>
+            <input type="password" class="form-control" id="loginPassword" placeholder="Enter password" required />
+          </div>
+          <button type="submit" class="btn btn--primary btn--full-width">Login</button>
+          <div id="loginMessage" style="color:red;"></div>
+        </form>
+        
+        <form id="signupForm" class="auth-form hidden">
+          <div class="form-group">
+            <label class="form-label" for="signupEmail">Email</label>
+            <input type="email" class="form-control" id="signupEmail" placeholder="Enter your email" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="signupPassword">Password</label>
+            <input type="password" class="form-control" id="signupPassword" placeholder="Create a password" required />
+          </div>
+          <button type="submit" class="btn btn--primary btn--full-width">Sign Up</button>
+          <div id="signupMessage" style="color:red;"></div>
+        </form>
+      </div>
+    </div>
+  </div>
 
-    const app = initializeApp(firebaseConfig);
-    getAnalytics(app);
-    const auth = getAuth(app);
+  <!-- Main App Layout -->
+  <div id="app" class="app-container hidden">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <div class="header-left">
+          <div class="logo">
+            <span class="logo-icon">🧠</span>
+            <span class="logo-text">DeepNet Social</span>
+          </div>
+        </div>
+        <div class="header-center">
+          <div class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search posts, users, topics..." />
+            <button type="button" class="search-btn">🔍</button>
+          </div>
+        </div>
+        <div class="header-right">
+          <nav class="nav">
+            <a href="#" class="nav-link active" onclick="showSection('home')">Home</a>
+            <a href="#" class="nav-link" onclick="showSection('profile')">Profile</a>
+            <a href="#" class="nav-link" onclick="showSection('research')">Research</a>
+            <a href="#" class="nav-link" onclick="showSection('messages')">Messages</a>
+          </nav>
+          <button type="button" class="theme-toggle" onclick="toggleTheme()">🌙</button>
+          <div class="user-avatar" id="currentUserAvatar">👩‍🔬</div>
+          <button type="button" onclick="logoutUser()">Logout</button>
+        </div>
+      </div>
+    </header>
 
-    // Sign up
-    document.getElementById('signupForm').addEventListener('submit', async function(e) {
+    <!-- Main Content -->
+    <section id="main-content">
+      <!-- Left Sidebar -->
+      <aside class="left-sidebar">
+        <ul class="sidebar-menu">
+          <li><a href="#" class="sidebar-link active" onclick="filterFeed('all')">📰 My Feed</a></li>
+          <li><a href="#" class="sidebar-link" onclick="filterFeed('trending')">📈 Trending Research</a></li>
+          <li><a href="#" class="sidebar-link" onclick="filterFeed('communities')">👥 AI Communities</a></li>
+          <li><a href="#" class="sidebar-link" onclick="filterFeed('bookmarks')">🔖 Bookmarks</a></li>
+          <li><a href="#" class="sidebar-link" onclick="showSettings()">⚙️ Settings</a></li>
+        </ul>
+      </aside>
+
+      <!-- Feed Container -->
+      <main class="feed-container">
+        <!-- Post Composer -->
+        <div class="post-composer card">
+          <div class="composer-header">
+            <div class="user-avatar">👩‍🔬</div>
+            <div class="composer-input-container">
+              <textarea id="postContent" class="composer-input" placeholder="Share your research insights..."></textarea>
+            </div>
+          </div>
+          <div class="composer-tools">
+            <div class="composer-options">
+              <button type="button" class="composer-btn" onclick="togglePostType('text')">📝 Text</button>
+              <button type="button" class="composer-btn" onclick="togglePostType('code')">💻 Code</button>
+              <button type="button" class="composer-btn" onclick="togglePostType('paper')">📄 Paper</button>
+              <button type="button" class="composer-btn" onclick="togglePostType('poll')">📊 Poll</button>
+            </div>
+            <div class="composer-actions">
+              <select class="privacy-select">
+                <option value="public">🌍 Public</option>
+                <option value="research">🔬 Research Community</option>
+                <option value="private">🔒 Private</option>
+              </select>
+              <button type="button" class="btn btn--primary" onclick="createPost()">Post</button>
+            </div>
+          </div>
+        </div>
+        <!-- Posts Feed -->
+        <div id="postsContainer" class="posts-container">
+          <!-- Posts will be dynamically inserted here -->
+        </div>
+      </main>
+
+      <!-- Right Sidebar -->
+      <aside class="right-sidebar">
+        <div class="sidebar-card card">
+          <h3>Trending Topics</h3>
+          <div id="trendingTopics" class="trending-topics"><!-- Trending topics will be inserted here --></div>
+        </div>
+
+        <div class="sidebar-card card">
+          <h3>Suggested Connections</h3>
+          <div id="suggestedUsers" class="suggested-users"><!-- Suggested users will be inserted here --></div>
+        </div>
+
+        <div class="sidebar-card card">
+          <h3>Research Highlights</h3>
+          <div class="research-highlights">
+            <div class="highlight-item">
+              <h4>NeurIPS 2025 Submissions</h4>
+              <p>Deadline: September 28, 2025</p>
+            </div>
+            <div class="highlight-item">
+              <h4>ICML Workshop Series</h4>
+              <p>Call for papers now open</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </div>
+  <script src="app.js"></script>
+  <script>
+    function switchAuthTab(tab) {
+      const loginForm = document.getElementById('loginForm');
+      const signupForm = document.getElementById('signupForm');
+      const loginTab = document.querySelector('.auth-tab:nth-child(1)');
+      const signupTab = document.querySelector('.auth-tab:nth-child(2)');
+      if (tab === 'login') {
+        loginForm.classList.remove('hidden');
+        signupForm.classList.add('hidden');
+        loginTab.classList.add('active');
+        signupTab.classList.remove('active');
+      } else {
+        loginForm.classList.add('hidden');
+        signupForm.classList.remove('hidden');
+        loginTab.classList.remove('active');
+        signupTab.classList.add('active');
+      }
+    }
+    function closeLoginModal() {
+      document.getElementById('loginModal').style.display = 'none';
+    }
+    function openLoginModal() {
+      document.getElementById('loginModal').style.display = 'block';
+    }
+    document.getElementById('signupForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const email = document.getElementById('signupEmail').value;
       const password = document.getElementById('signupPassword').value;
-      try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        document.getElementById('signupMessage').innerText = `Signup successful: ${userCredential.user.email}`;
-      } catch (error) {
-        document.getElementById('signupMessage').innerText = `Error: ${error.message}`;
-      }
+      firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          alert(`Signup successful: ${userCredential.user.email}`);
+          closeLoginModal();
+          showApp();
+        })
+        .catch(error => {
+          alert(`Error: ${error.message}`);
+        });
     });
-
-    // Login
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
-      try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        document.getElementById('loginMessage').innerText = `Login successful: ${userCredential.user.email}`;
-      } catch (error) {
-        document.getElementById('loginMessage').innerText = `Error: ${error.message}`;
-      }
+      firebase.auth().signInWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          alert(`Login successful: ${userCredential.user.email}`);
+          closeLoginModal();
+          showApp();
+        })
+        .catch(error => {
+          alert(`Error: ${error.message}`);
+        });
     });
-
-    // Auth state listener (shows user status)
-    onAuthStateChanged(auth, user => {
+    firebase.auth().onAuthStateChanged(user => {
       if (user) {
-        document.getElementById('status').innerText = `Logged in as: ${user.email}`;
+        console.log(`User logged in: ${user.email}`);
+        showApp();
       } else {
-        document.getElementById('status').innerText = "Not logged in";
+        openLoginModal();
       }
     });
-
+    function showApp() {
+      document.getElementById('app').classList.remove('hidden');
+      document.getElementById('loginModal').style.display = 'none';
+    }
+    function logoutUser() {
+      firebase.auth().signOut().then(() => {
+        alert('Logged out successfully');
+        document.getElementById('app').classList.add('hidden');
+        openLoginModal();
+      });
+    }
+    window.onload = () => {
+      switchAuthTab('login');
+      firebase.auth().onAuthStateChanged(user => {
+         if (!user) {
+           openLoginModal();
+         }
+      });
+    };
   </script>
 </body>
 </html>
