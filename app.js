@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>DeepNet Social - AI Research Community</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    .hidden { display: none; }
+    .auth-message { margin-top: 8px; font-size: 0.9rem; }
+    .auth-message.success { color: green; }
+    .auth-message.error { color: red; }
+    .notification { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 12px 20px; background: #1877f2; color: #fff; border-radius: 6px; opacity: 0; transition: opacity 0.3s; }
+    .notification.show { opacity: 1; }
+  </style>
 </head>
 <body>
   <!-- Login Modal -->
@@ -20,26 +28,30 @@
           <button type="button" class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
         </div>
         
+        <!-- LOGIN FORM -->
         <form id="loginForm" class="auth-form">
-          <input type="email" id="loginEmail" placeholder="Enter email" required />
-          <input type="password" id="loginPassword" placeholder="Enter password" required />
+          <input type="email" name="email" id="loginEmail" placeholder="Enter email" required />
+          <input type="password" name="password" id="loginPassword" placeholder="Enter password" required />
           <button type="submit" class="btn">Login</button>
-          <div id="loginMessage"></div>
+          <div id="loginMessage" class="auth-message"></div>
         </form>
-        
+
+        <!-- SIGNUP FORM -->
         <form id="signupForm" class="auth-form hidden">
-          <input type="email" id="signupEmail" placeholder="Enter email" required />
-          <input type="password" id="signupPassword" placeholder="Create password" minlength="6" required />
+          <input type="email" name="email" id="signupEmail" placeholder="Enter email" required />
+          <input type="password" name="password" id="signupPassword" placeholder="Create password" minlength="6" required />
           <button type="submit" class="btn">Sign Up</button>
-          <div id="signupMessage"></div>
+          <div id="signupMessage" class="auth-message"></div>
         </form>
       </div>
     </div>
   </div>
 
+  <!-- Notification -->
+  <div id="notification" class="notification"></div>
+
   <!-- Main App Layout -->
   <div id="app" class="hidden">
-    <!-- Header -->
     <header class="header">
       <div class="header-content">
         <div class="logo">🧠 DeepNet Social</div>
@@ -51,25 +63,20 @@
       </div>
     </header>
 
-    <!-- Feed -->
     <main class="feed">
-      <!-- Composer -->
       <div class="post-composer card">
         <textarea id="postContent" placeholder="Share your research insights..."></textarea>
         <button onclick="createPost()">Post</button>
       </div>
-
-      <!-- Posts -->
       <div id="postsContainer"></div>
     </main>
   </div>
 
   <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-  <script>
-    // ================= Firebase Init =================
     const firebaseConfig = {
       apiKey: "AIzaSyBytov9p2TGFudvnwQZ1hSi5f9oXaSKDAQ",
       authDomain: "deepnet-social-backend.firebaseapp.com",
@@ -79,15 +86,15 @@
       appId: "1:689173633913:web:b5290dc64ea8fd2b2f2da8",
       measurementId: "G-B1ENWRY6JK"
     };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-    // ================= Storage Helpers =================
-    const STORAGE_KEY = "deepnet_posts";
-    function getPosts(){ try { return JSON.parse(localStorage.getItem(STORAGE_KEY))||[]; } catch{ return []; } }
-    function setPosts(p){ localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }
-
-    // ================= Auth =================
+    // ================= Helpers =================
+    function showNotification(msg, type='success') {
+      const n = document.getElementById('notification');
+      n.textContent = msg; n.className = `notification ${type} show`;
+      setTimeout(()=>n.classList.remove('show'),3000);
+    }
     function switchAuthTab(tab){
       document.getElementById('loginForm').classList.toggle('hidden', tab!=='login');
       document.getElementById('signupForm').classList.toggle('hidden', tab!=='signup');
@@ -96,141 +103,181 @@
     function openLoginModal(){ document.getElementById('loginModal').style.display='block'; }
     function showApp(){ document.getElementById('app').classList.remove('hidden'); closeLoginModal(); }
 
-    document.getElementById('signupForm').addEventListener('submit', e=>{
+    // ================= SIGNUP =================
+    document.getElementById('signupForm').addEventListener('submit', async (e)=>{
       e.preventDefault();
-      const email=document.getElementById('signupEmail').value;
-      const pass=document.getElementById('signupPassword').value;
-      auth.createUserWithEmailAndPassword(email,pass).then(()=>{
-        document.getElementById('signupMessage').textContent="✅ Account created!";
-        setTimeout(showApp,500);
-      }).catch(err=>document.getElementById('signupMessage').textContent=err.message);
+      const email = e.target.email.value.trim();
+      const password = e.target.password.value.trim();
+      const msg = document.getElementById('signupMessage');
+
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        await sendEmailVerification(cred.user);
+        msg.className = 'auth-message success';
+        msg.textContent = "✅ Account created. Verification email sent. Please verify before logging in.";
+        await signOut(auth);
+        e.target.reset();
+      } catch(err){
+        msg.className = 'auth-message error';
+        msg.textContent = `❌ ${err.message}`;
+      }
     });
 
-    document.getElementById('loginForm').addEventListener('submit', e=>{
+    // ================= LOGIN =================
+    document.getElementById('loginForm').addEventListener('submit', async (e)=>{
       e.preventDefault();
-      const email=document.getElementById('loginEmail').value;
-      const pass=document.getElementById('loginPassword').value;
-      auth.signInWithEmailAndPassword(email,pass).then(()=>{
-        document.getElementById('loginMessage').textContent="✅ Login successful!";
-        setTimeout(showApp,500);
-      }).catch(err=>document.getElementById('loginMessage').textContent=err.message);
+      const email = e.target.email.value.trim();
+      const password = e.target.password.value.trim();
+      const msg = document.getElementById('loginMessage');
+
+      try {
+        const cred = await signInWithEmailAndPassword(auth, email, password);
+        if(!cred.user.emailVerified){
+          await signOut(auth);
+          msg.className='auth-message error';
+          msg.innerHTML = `
+            ❌ Email not verified.
+            <br><button id="resendBtn">Resend verification email</button>
+          `;
+          document.getElementById('resendBtn').onclick = async () => {
+            try {
+              const temp = await signInWithEmailAndPassword(auth,email,password);
+              await sendEmailVerification(temp.user);
+              await signOut(auth);
+              showNotification("Verification email resent!");
+            } catch(e2){ showNotification("Failed: " + e2.message,'error'); }
+          };
+          return;
+        }
+        msg.className='auth-message success';
+        msg.textContent = "✅ Login successful!";
+        e.target.reset();
+        setTimeout(()=>document.getElementById('loginModal').classList.add('hidden'),800);
+      } catch(err){
+        msg.className='auth-message error';
+        msg.textContent = `❌ ${err.message}`;
+      }
     });
 
-    auth.onAuthStateChanged(user=>{
-      if(user){ showApp(); document.getElementById('currentUserAvatar').textContent=user.email[0].toUpperCase(); renderPosts(); }
-      else { document.getElementById('app').classList.add('hidden'); openLoginModal(); }
+    // ================= AUTH STATE =================
+    onAuthStateChanged(auth, user=>{
+      const loginModal = document.getElementById('loginModal');
+      const appDiv = document.getElementById('app');
+      const avatarEl = document.getElementById('currentUserAvatar');
+
+      if(user && user.emailVerified){
+        loginModal.classList.add('hidden');
+        appDiv.classList.remove('hidden');
+        avatarEl.textContent = user.email[0].toUpperCase();
+        renderPosts();
+      } else {
+        loginModal.classList.remove('hidden');
+        appDiv.classList.add('hidden');
+        avatarEl.textContent='👤';
+      }
     });
 
-    function logoutUser(){ auth.signOut(); }
+    // ================= LOGOUT =================
+    window.logoutUser = async ()=>{
+      try { await signOut(auth); showNotification('Logged out'); }
+      catch(e){ showNotification('Logout failed: '+e.message,'error'); }
+    };
 
-    // ================= Posts =================
-    function formatTime(t){ return new Date(t).toLocaleString(); }
+    // ================= POSTS =================
+    const STORAGE_KEY = "deepnet_posts";
+    function getPosts(){ try { return JSON.parse(localStorage.getItem(STORAGE_KEY))||[]; } catch{ return []; } }
+    function setPosts(p){ localStorage.setItem(STORAGE_KEY,JSON.stringify(p)); }
 
     function createPost(){
-      const user=auth.currentUser; if(!user) return alert("Login first!");
-      const content=document.getElementById('postContent').value.trim();
+      const user = auth.currentUser;
+      if(!user || !user.emailVerified) { alert("Verify email first!"); return; }
+
+      const content = document.getElementById('postContent').value.trim();
       if(!content) return;
-      const newPost={
-        id:Date.now().toString(),
+
+      const post = {
+        id: Date.now().toString(),
         content,
-        authorId:user.uid,
-        authorName:user.email.split('@')[0],
-        authorEmail:user.email,
-        authorAvatar:`https://i.pravatar.cc/40?u=${user.uid}`,
-        createdAt:new Date().toISOString(),
+        authorName: user.email.split('@')[0],
+        authorEmail: user.email,
+        authorAvatar: `https://i.pravatar.cc/40?u=${user.uid}`,
+        createdAt: new Date().toISOString(),
         likes:0, likedBy:[], commentList:[]
       };
-      const posts=getPosts(); posts.unshift(newPost); setPosts(posts);
+
+      const posts = getPosts();
+      posts.unshift(post);
+      setPosts(posts);
       document.getElementById('postContent').value='';
       renderPosts();
     }
 
     function renderPosts(){
-      const posts=getPosts();
-      const container=document.getElementById('postsContainer');
+      const container = document.getElementById('postsContainer');
       container.innerHTML='';
-      posts.forEach(p=>container.appendChild(createPostElement(p)));
-    }
-
-    function createPostElement(post){
-      const div=document.createElement('div');
-      div.className='card post'; div.dataset.postId=post.id;
-      const isLiked=post.likedBy.includes(auth.currentUser?.uid);
-      div.innerHTML=`
-        <div class="post-header">
-          <img src="${post.authorAvatar}" class="user-avatar">
-          <b>${post.authorName}</b> <small>${formatTime(post.createdAt)}</small>
-        </div>
-        <div class="post-content">${post.content}</div>
-        <div class="post-stats">
-          <span>${post.likes} reactions • <span class="comment-count">${post.commentList.length}</span> comments</span>
-        </div>
-        <div class="post-actions">
-          <button onclick="toggleLike('${post.id}')" class="${isLiked?'liked':''}">👍 Like</button>
-          <button onclick="focusCommentInput('${post.id}')">💬 Comment</button>
-        </div>
-        <div class="comments">
-          <div class="comment-list"></div>
-          <input class="comment-input" placeholder="Write a comment..." onkeydown="commentKeydown(event,'${post.id}')">
-        </div>`;
-      renderComments(div,post);
-      return div;
-    }
-
-    function renderComments(postEl, post){
-      const list=postEl.querySelector('.comment-list'); list.innerHTML='';
-      (post.commentList||[]).forEach((c,idx)=>{
-        const item=document.createElement('div');
-        item.innerHTML=`<b>${c.author}</b>: ${c.text}
-          ${auth.currentUser?.uid===c.userId?`<button onclick="deleteComment('${post.id}',${idx})">Delete</button>`:''}`;
-        list.appendChild(item);
+      getPosts().forEach(p=>{
+        const div = document.createElement('div');
+        div.className='card post';
+        div.dataset.postId = p.id;
+        const isLiked = p.likedBy.includes(auth.currentUser?.uid);
+        div.innerHTML=`
+          <div class="post-header">
+            <img src="${p.authorAvatar}" class="user-avatar">
+            <b>${p.authorName}</b> <small>${new Date(p.createdAt).toLocaleString()}</small>
+          </div>
+          <div class="post-content">${p.content}</div>
+          <div class="post-stats">
+            <span>${p.likes} reactions • <span class="comment-count">${p.commentList.length}</span> comments</span>
+          </div>
+          <div class="post-actions">
+            <button onclick="toggleLike('${p.id}')" class="${isLiked?'liked':''}">👍 Like</button>
+            <button onclick="focusCommentInput('${p.id}')">💬 Comment</button>
+          </div>
+          <div class="comments">
+            <div class="comment-list"></div>
+            <input class="comment-input" placeholder="Write a comment..." onkeydown="commentKeydown(event,'${p.id}')">
+          </div>
+        `;
+        container.appendChild(div);
+        renderComments(div,p);
       });
     }
 
     function toggleLike(postId){
-      const posts=getPosts(); const idx=posts.findIndex(p=>p.id===postId);
-      if(idx===-1) return; const uid=auth.currentUser?.uid; if(!uid) return;
-      const liked=posts[idx].likedBy.includes(uid);
-      if(liked){ posts[idx].likedBy=posts[idx].likedBy.filter(x=>x!==uid); posts[idx].likes--; }
-      else { posts[idx].likedBy.push(uid); posts[idx].likes++; }
+      const posts = getPosts();
+      const idx = posts.findIndex(p=>p.id===postId); if(idx===-1) return;
+      const uid = auth.currentUser?.uid; if(!uid) return;
+      const liked = posts[idx].likedBy.includes(uid);
+      liked ? (posts[idx].likedBy = posts[idx].likedBy.filter(x=>x!==uid), posts[idx].likes--) : (posts[idx].likedBy.push(uid), posts[idx].likes++);
       setPosts(posts); renderPosts();
     }
 
-    function focusCommentInput(postId){
-      document.querySelector(`[data-post-id="${postId}"] .comment-input`).focus();
-    }
-
-    function commentKeydown(e,postId){
-      if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); addComment(postId); }
-    }
-
+    function focusCommentInput(postId){ document.querySelector(`[data-post-id="${postId}"] .comment-input`).focus(); }
+    function commentKeydown(e,postId){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); addComment(postId); } }
     function addComment(postId){
-      const posts=getPosts(); const idx=posts.findIndex(p=>p.id===postId); if(idx===-1) return;
-      const input=document.querySelector(`[data-post-id="${postId}"] .comment-input`);
-      const text=input.value.trim(); if(!text) return;
-      const user=auth.currentUser;
-      posts[idx].commentList.push({ userId:user.uid, author:user.email.split('@')[0], text, createdAt:new Date().toISOString() });
+      const posts = getPosts();
+      const idx = posts.findIndex(p=>p.id===postId); if(idx===-1) return;
+      const input = document.querySelector(`[data-post-id="${postId}"] .comment-input`);
+      const text = input.value.trim(); if(!text) return;
+      posts[idx].commentList.push({ userId:auth.currentUser.uid, author:auth.currentUser.email.split('@')[0], text, createdAt:new Date().toISOString() });
       setPosts(posts); renderPosts();
     }
-
-    function deleteComment(postId,commentIndex){
-      const posts=getPosts(); const idx=posts.findIndex(p=>p.id===postId); if(idx===-1) return;
-      const comment=posts[idx].commentList[commentIndex];
-      if(auth.currentUser?.uid!==comment.userId) return alert("Not allowed");
-      posts[idx].commentList.splice(commentIndex,1);
-      setPosts(posts); renderPosts();
-    }
-
-    // Search
-    document.getElementById('searchInput').addEventListener('input', e=>{
-      const q=e.target.value.toLowerCase();
-      document.querySelectorAll('.post').forEach(p=>{
-        p.style.display=p.innerText.toLowerCase().includes(q)?'block':'none';
+    function renderComments(postEl, post){
+      const list = postEl.querySelector('.comment-list'); list.innerHTML='';
+      (post.commentList||[]).forEach((c,idx)=>{
+        const item = document.createElement('div');
+        item.innerHTML = `<b>${c.author}</b>: ${c.text} ${auth.currentUser?.uid===c.userId?`<button onclick="deleteComment('${post.id}',${idx})">Delete</button>`:''}`;
+        list.appendChild(item);
       });
+    }
+    function deleteComment(postId,idx){ const posts=getPosts(); const i=posts.findIndex(p=>p.id===postId); if(i===-1) return; if(auth.currentUser.uid!==posts[i].commentList[idx].userId) return alert("Not allowed"); posts[i].commentList.splice(idx,1); setPosts(posts); renderPosts(); }
+
+    document.getElementById('searchInput').addEventListener('input', e=>{
+      const q = e.target.value.toLowerCase();
+      document.querySelectorAll('.post').forEach(p=>{ p.style.display = p.innerText.toLowerCase().includes(q)?'block':'none'; });
     });
 
-    // Init
-    window.onload=()=>{ switchAuthTab('login'); };
+    window.onload = ()=>{ switchAuthTab('login'); };
   </script>
 </body>
 </html>
