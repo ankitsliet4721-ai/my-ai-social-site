@@ -1,204 +1,928 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>DeepNet Social — Persistent Posts & Comments</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DeepNet Social - AI Research Community</title>
   <style>
-    /* (Your original theme, slightly simplified for readability) */
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#18191a;color:#e4e6ea;line-height:1.34}
-    .login-modal{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:2000}
-    .login-content{background:#242526;border-radius:12px;padding:28px;width:420px;max-width:92%;position:relative}
-    .modal-close{position:absolute;right:18px;top:14px;font-size:22px;background:none;border:none;color:#b0b3b8;cursor:pointer}
-    .modal-close:hover{color:#fff}
-    .auth-tabs{display:flex;margin-bottom:16px;background:#3a3b3c;border-radius:8px;padding:4px}
-    .auth-tab{flex:1;padding:10px;border-radius:6px;border:none;background:transparent;color:#b0b3b8;font-weight:600;cursor:pointer}
-    .auth-tab.active{background:#1877f2;color:#fff}
-    .form-input{width:100%;padding:12px;border-radius:8px;border:1px solid #3e4042;background:#3a3b3c;color:#e4e6ea;margin-bottom:12px}
-    .auth-btn{width:100%;padding:12px;border-radius:8px;border:none;background:#1877f2;color:white;font-weight:700;cursor:pointer}
-    .auth-message{margin-top:12px;padding:8px;border-radius:6px;text-align:center;font-size:14px}
-    .auth-message.success{background:rgba(24,119,242,.12);color:#1877f2}
-    .auth-message.error{background:rgba(244,67,54,.12);color:#f44336}
-    header{position:fixed;inset-inline:0;top:0;height:60px;background:#242526;border-bottom:1px solid #3e4042;z-index:1000}
-    .header-content{max-width:1200px;margin:0 auto;height:100%;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
-    .logo{display:flex;gap:8px;align-items:center;color:#1877f2;font-weight:700;font-size:20px}
-    .search-input{width:320px;padding:10px;border-radius:9999px;background:#3a3b3c;border:none;color:#e4e6ea}
-    .header-actions{display:flex;gap:8px;align-items:center}
-    .icon-btn{width:40px;height:40px;border-radius:50%;background:#3a3b3c;border:none;color:#e4e6ea;cursor:pointer}
-    .user-avatar{width:36px;height:36px;border-radius:50%;object-fit:cover}
-    .logout-btn{background:#e74c3c;color:white;border:none;padding:8px 12px;border-radius:6px;cursor:pointer}
-    .main-container{max-width:1200px;margin:80px auto 60px;display:flex;gap:20px;padding:0 16px}
-    .left-sidebar,.right-sidebar{width:260px;position:sticky;top:100px;height:calc(100vh - 140px);overflow:auto}
-    .main-feed{flex:1;max-width:640px}
-    .card{background:#242526;border-radius:8px;padding:16px;margin-bottom:16px;border:1px solid #3e4042}
-    .composer-input{width:100%;min-height:56px;padding:12px;border-radius:20px;border:none;background:#3a3b3c;color:#e4e6ea;resize:vertical;font-family:inherit}
-    .post-btn{background:#1877f2;color:white;border:none;padding:8px 18px;border-radius:8px;cursor:pointer}
-    .post{margin-bottom:16px}
-    .post-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-    .post-author-info{display:flex;align-items:center;gap:10px}
-    .post-author{font-weight:700}
-    .post-time{color:#b0b3b8;font-size:13px}
-    .post-content{margin-bottom:12px;word-wrap:break-word}
-    .post-actions{display:flex;gap:8px}
-    .post-action{flex:1;padding:8px;border-radius:8px;background:transparent;border:none;color:#b0b3b8;cursor:pointer;font-weight:700}
-    .post-action.liked{color:#1877f2}
-    .comments-list{margin-top:10px;padding-top:8px;border-top:1px solid #3e4042}
-    .comment-item{padding:8px 0;border-bottom:1px dashed rgba(255,255,255,0.02)}
-    .comment-meta{font-size:13px;color:#b0b3b8;margin-bottom:6px}
-    .comment-text{color:#e4e6ea}
-    .comment-form{display:flex;gap:8px;margin-top:8px}
-    .comment-input{flex:1;padding:8px;border-radius:8px;border:1px solid #3e4042;background:#2f3132;color:#e4e6ea}
-    .comment-btn{background:#1877f2;color:white;border:none;padding:8px 12px;border-radius:8px}
-    .notification{position:fixed;right:20px;top:80px;background:#1877f2;color:#fff;padding:10px 14px;border-radius:8px;transform:translateX(120%);opacity:0;transition:all .25s}
-    .notification.show{transform:translateX(0);opacity:1}
-    @media (max-width:1024px){.left-sidebar,.right-sidebar{display:none}.main-feed{max-width:none}}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+      background-color: #18191a;
+      color: #e4e6ea;
+      line-height: 1.34;
+    }
+
+    /* Login Modal */
+    .login-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+
+    .login-content {
+      background-color: #242526;
+      border-radius: 12px;
+      padding: 32px;
+      width: 400px;
+      max-width: 90%;
+      position: relative;
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .login-logo {
+      font-size: 32px;
+      font-weight: bold;
+      color: #1877f2;
+      margin-bottom: 8px;
+    }
+
+    .login-subtitle {
+      color: #b0b3b8;
+      font-size: 16px;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #b0b3b8;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px;
+    }
+
+    .modal-close:hover {
+      color: #e4e6ea;
+    }
+
+    .auth-tabs {
+      display: flex;
+      margin-bottom: 20px;
+      background-color: #3a3b3c;
+      border-radius: 8px;
+      padding: 4px;
+    }
+
+    .auth-tab {
+      flex: 1;
+      background: none;
+      border: none;
+      padding: 12px;
+      color: #b0b3b8;
+      cursor: pointer;
+      border-radius: 6px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .auth-tab.active {
+      background-color: #1877f2;
+      color: white;
+    }
+
+    .auth-form {
+      display: block;
+    }
+
+    .auth-form.hidden {
+      display: none;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 14px 16px;
+      background-color: #3a3b3c;
+      border: 1px solid #3e4042;
+      border-radius: 8px;
+      color: #e4e6ea;
+      font-size: 16px;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #1877f2;
+    }
+
+    .form-input::placeholder {
+      color: #b0b3b8;
+    }
+
+    .auth-btn {
+      width: 100%;
+      padding: 14px;
+      background-color: #1877f2;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .auth-btn:hover {
+      background-color: #166fe5;
+    }
+
+    .auth-message {
+      margin-top: 12px;
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .auth-message.success {
+      background-color: rgba(24, 119, 242, 0.2);
+      color: #1877f2;
+    }
+
+    .auth-message.error {
+      background-color: rgba(244, 67, 54, 0.2);
+      color: #f44336;
+    }
+
+    /* Header */
+    .header {
+      background-color: #242526;
+      border-bottom: 1px solid #3e4042;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      height: 60px;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 16px;
+      height: 100%;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #1877f2;
+      text-decoration: none;
+    }
+
+    .search-bar {
+      flex: 1;
+      max-width: 320px;
+      margin: 0 16px;
+    }
+
+    .search-input {
+      width: 100%;
+      background-color: #3a3b3c;
+      border: none;
+      border-radius: 50px;
+      padding: 10px 16px;
+      color: #e4e6ea;
+      font-size: 15px;
+    }
+
+    .search-input::placeholder {
+      color: #b0b3b8;
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 8px;
+    }
+
+    .nav-item {
+      padding: 12px 16px;
+      border-radius: 8px;
+      color: #b0b3b8;
+      text-decoration: none;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+
+    .nav-item:hover,
+    .nav-item.active {
+      background-color: #3a3b3c;
+      color: #1877f2;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      background-color: #3a3b3c;
+      border: none;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #e4e6ea;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.2s;
+    }
+
+    .icon-btn:hover {
+      background-color: #4e4f50;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      object-fit: cover;
+    }
+
+    .logout-btn {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+
+    .logout-btn:hover {
+      background-color: #c0392b;
+    }
+
+    /* Main Layout */
+    .main-container {
+      margin-top: 60px;
+      display: flex;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+      gap: 20px;
+      padding: 20px 16px;
+    }
+
+    /* Left Sidebar */
+    .left-sidebar {
+      width: 280px;
+      position: sticky;
+      top: 80px;
+      height: calc(100vh - 80px);
+      overflow-y: auto;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 8px;
+      border-radius: 8px;
+      color: #e4e6ea;
+      text-decoration: none;
+      transition: background-color 0.2s;
+      margin-bottom: 4px;
+    }
+
+    .sidebar-item:hover {
+      background-color: #3a3b3c;
+    }
+
+    .sidebar-icon {
+      width: 36px;
+      height: 36px;
+      margin-right: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      border-radius: 50%;
+      background-color: #3a3b3c;
+    }
+
+    .sidebar-text {
+      font-weight: 500;
+    }
+
+    /* Main Feed */
+    .main-feed {
+      flex: 1;
+      max-width: 500px;
+    }
+
+    .card {
+      background-color: #242526;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      border: 1px solid #3e4042;
+    }
+
+    /* Post Composer */
+    .post-composer {
+      margin-bottom: 20px;
+    }
+
+    .composer-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .composer-input {
+      background-color: #3a3b3c;
+      border: none;
+      border-radius: 24px;
+      padding: 12px 16px;
+      color: #e4e6ea;
+      font-size: 16px;
+      width: 100%;
+      resize: none;
+      min-height: 44px;
+      font-family: inherit;
+    }
+
+    .composer-input::placeholder {
+      color: #b0b3b8;
+    }
+
+    .composer-input:focus {
+      outline: none;
+      border: 2px solid #1877f2;
+    }
+
+    .composer-tools {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid #3e4042;
+    }
+
+    .composer-options {
+      display: flex;
+      gap: 8px;
+    }
+
+    .composer-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: none;
+      border: none;
+      border-radius: 6px;
+      color: #b0b3b8;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .composer-btn:hover {
+      background-color: #3a3b3c;
+    }
+
+    .post-btn {
+      background-color: #1877f2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 20px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      min-width: 80px;
+    }
+
+    .post-btn:hover {
+      background-color: #166fe5;
+    }
+
+    .post-btn:disabled {
+      background-color: #4a4a4a;
+      cursor: not-allowed;
+    }
+
+    /* Posts */
+    .post {
+      margin-bottom: 20px;
+    }
+
+    .post-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .post-author-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .post-author {
+      font-weight: 600;
+      color: #e4e6ea;
+    }
+
+    .post-time {
+      color: #b0b3b8;
+      font-size: 13px;
+    }
+
+    .post-menu {
+      background: none;
+      border: none;
+      color: #b0b3b8;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 50%;
+      font-size: 16px;
+    }
+
+    .post-menu:hover {
+      background-color: #3a3b3c;
+    }
+
+    .post-content {
+      margin-bottom: 16px;
+      line-height: 1.4;
+      color: #e4e6ea;
+      font-size: 16px;
+      word-wrap: break-word;
+    }
+
+    .post-stats {
+      display: flex;
+      justify-content: space-between;
+      color: #b0b3b8;
+      font-size: 13px;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #3e4042;
+    }
+
+    .post-actions {
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .post-action {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      background: none;
+      border: none;
+      border-radius: 6px;
+      color: #b0b3b8;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      font-weight: 600;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .post-action:hover {
+      background-color: #3a3b3c;
+    }
+
+    .post-action.liked {
+      color: #1877f2;
+    }
+
+    /* Right Sidebar */
+    .right-sidebar {
+      width: 280px;
+      position: sticky;
+      top: 80px;
+      height: calc(100vh - 80px);
+      overflow-y: auto;
+    }
+
+    .sidebar-section {
+      margin-bottom: 20px;
+    }
+
+    .sidebar-title {
+      font-weight: 600;
+      color: #b0b3b8;
+      margin-bottom: 12px;
+      font-size: 17px;
+    }
+
+    .trending-item {
+      display: flex;
+      align-items: center;
+      padding: 8px;
+      border-radius: 8px;
+      margin-bottom: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .trending-item:hover {
+      background-color: #3a3b3c;
+    }
+
+    .trending-hash {
+      color: #1877f2;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+
+    .suggested-user {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      transition: background-color 0.2s;
+    }
+
+    .suggested-user:hover {
+      background-color: #3a3b3c;
+    }
+
+    .suggested-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .suggested-name {
+      font-weight: 600;
+      color: #e4e6ea;
+    }
+
+    .suggested-field {
+      color: #b0b3b8;
+      font-size: 13px;
+    }
+
+    .follow-btn {
+      background-color: #1877f2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 16px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .follow-btn:hover {
+      background-color: #166fe5;
+    }
+
+    /* Utility */
+    .hidden {
+      display: none !important;
+    }
+
+    /* Loading spinner */
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: #b0b3b8;
+    }
+
+    .spinner {
+      border: 2px solid #3a3b3c;
+      border-top: 2px solid #1877f2;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Success notification */
+    .notification {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      background-color: #1877f2;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      z-index: 1500;
+      opacity: 0;
+      transform: translateX(100%);
+      transition: all 0.3s ease;
+    }
+
+    .notification.show {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .notification.error {
+      background-color: #e74c3c;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .left-sidebar,
+      .right-sidebar {
+        display: none;
+      }
+      
+      .main-feed {
+        max-width: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .search-bar {
+        display: none;
+      }
+      
+      .main-container {
+        padding: 20px 8px;
+      }
+      
+      .login-content {
+        width: 95%;
+        padding: 24px;
+      }
+    }
   </style>
 </head>
 <body>
   <!-- Login Modal -->
-  <div id="loginModal" class="login-modal" aria-hidden="false">
-    <div class="login-content" role="dialog" aria-labelledby="authTitle">
-      <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
-      <h2 id="authTitle" style="color:#fff;margin-bottom:8px">🧠 DeepNet Social</h2>
-      <p style="color:#b0b3b8;margin-bottom:16px">Connect with AI researchers worldwide</p>
-
-      <div class="auth-tabs" role="tablist">
-        <button class="auth-tab active" onclick="switchAuthTab('login')" id="tabLogin">Login</button>
-        <button class="auth-tab" onclick="switchAuthTab('signup')" id="tabSignup">Sign Up</button>
+  <div id="loginModal" class="login-modal">
+    <div class="login-content">
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+      <div class="login-header">
+        <div class="login-logo">🧠 DeepNet Social</div>
+        <div class="login-subtitle">Connect with AI researchers worldwide</div>
       </div>
-
-      <form id="loginForm" class="auth-form" aria-label="Login form">
-        <input class="form-input" name="email" type="email" placeholder="Email address" required />
-        <input class="form-input" name="password" type="password" placeholder="Password" required />
-        <button class="auth-btn" type="submit">Log In</button>
-        <div id="loginMessage" class="auth-message" aria-live="polite"></div>
+      
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+        <button class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
+      </div>
+      
+      <form id="loginForm" class="auth-form">
+        <div class="form-group">
+          <input type="email" class="form-input" name="email" placeholder="Email address" required>
+        </div>
+        <div class="form-group">
+          <input type="password" class="form-input" name="password" placeholder="Password" required>
+        </div>
+        <button type="submit" class="auth-btn">Log In</button>
+        <div id="loginMessage" class="auth-message"></div>
       </form>
-
-      <form id="signupForm" class="auth-form hidden" aria-label="Signup form">
-        <input class="form-input" name="email" type="email" placeholder="Email address" required />
-        <input class="form-input" name="password" type="password" placeholder="Create password" minlength="6" required />
-        <button class="auth-btn" type="submit">Sign Up</button>
-        <div id="signupMessage" class="auth-message" aria-live="polite"></div>
+      
+      <form id="signupForm" class="auth-form hidden">
+        <div class="form-group">
+          <input type="email" class="form-input" name="email" placeholder="Email address" required>
+        </div>
+        <div class="form-group">
+          <input type="password" class="form-input" name="password" placeholder="Create password" minlength="6" required>
+        </div>
+        <button type="submit" class="auth-btn">Sign Up</button>
+        <div id="signupMessage" class="auth-message"></div>
       </form>
     </div>
   </div>
 
-  <div id="notification" class="notification" role="status" aria-live="polite"></div>
+  <!-- Notification -->
+  <div id="notification" class="notification"></div>
 
   <!-- Main App -->
-  <div id="app" class="hidden" aria-hidden="true">
-    <header>
+  <div id="app" class="hidden">
+    <!-- Header -->
+    <header class="header">
       <div class="header-content">
-        <div class="logo"><span>🧠</span> DeepNet Social</div>
-
-        <input class="search-input" id="searchInput" placeholder="Search posts, users, topics..." />
-
+        <a href="#" class="logo">
+          <span>🧠</span>
+          DeepNet Social
+        </a>
+        
+        <div class="search-bar">
+          <input type="text" class="search-input" placeholder="Search DeepNet Social">
+        </div>
+        
+        <nav class="header-nav">
+          <a href="#" class="nav-item active">Home</a>
+          <a href="#" class="nav-item">Research</a>
+          <a href="#" class="nav-item">Communities</a>
+          <a href="#" class="nav-item">Messages</a>
+        </nav>
+        
         <div class="header-actions">
-          <button class="icon-btn" title="Notifications">🔔</button>
-          <button class="icon-btn" title="Messages">💬</button>
-          <img id="userAvatar" class="user-avatar" src="https://i.pravatar.cc/40?u=guest" alt="Avatar" />
-          <button class="logout-btn" id="logoutBtn">Logout</button>
+          <button class="icon-btn">🔔</button>
+          <button class="icon-btn">💬</button>
+          <img id="userAvatar" src="https://i.pravatar.cc/40?u=guest" class="user-avatar" alt="User Avatar">
+          <button class="logout-btn" onclick="logoutUser()">Logout</button>
         </div>
       </div>
     </header>
 
-    <main class="main-container" role="main">
-      <aside class="left-sidebar" aria-label="Left sidebar">
-        <div style="padding:8px 0 18px">
-          <img id="sidebarAvatar" src="https://i.pravatar.cc/40?u=guest" style="width:56px;height:56px;border-radius:50%" alt="profile" />
-          <div id="profileName" style="margin-top:8px;font-weight:700">Your Profile</div>
-        </div>
-        <!-- Other links... -->
+    <!-- Main Container -->
+    <div class="main-container">
+      <!-- Left Sidebar -->
+      <aside class="left-sidebar">
+        <a href="#" class="sidebar-item">
+          <img id="sidebarAvatar" src="https://i.pravatar.cc/40?u=guest" class="sidebar-icon" style="border-radius: 50%;" alt="Profile">
+          <span class="sidebar-text" id="profileName">Your Profile</span>
+        </a>
+        <a href="#" class="sidebar-item">
+          <div class="sidebar-icon">👥</div>
+          <span class="sidebar-text">AI Communities</span>
+        </a>
+        <a href="#" class="sidebar-item">
+          <div class="sidebar-icon">📊</div>
+          <span class="sidebar-text">Research Analytics</span>
+        </a>
+        <a href="#" class="sidebar-item">
+          <div class="sidebar-icon">📚</div>
+          <span class="sidebar-text">Papers & Publications</span>
+        </a>
+        <a href="#" class="sidebar-item">
+          <div class="sidebar-icon">🔖</div>
+          <span class="sidebar-text">Saved Posts</span>
+        </a>
+        <a href="#" class="sidebar-item">
+          <div class="sidebar-icon">⚙️</div>
+          <span class="sidebar-text">Settings</span>
+        </a>
       </aside>
 
-      <section class="main-feed" aria-label="Feed">
-        <div class="card post-composer" role="region" aria-label="Post composer">
-          <div style="display:flex;gap:12px;align-items:flex-start">
-            <img id="composerAvatar" src="https://i.pravatar.cc/40?u=guest" class="user-avatar" alt="You" />
-            <textarea id="postInput" class="composer-input" placeholder="Share your research insights..." rows="3"></textarea>
+      <!-- Main Feed -->
+      <main class="main-feed">
+        <!-- Post Composer -->
+        <div class="card post-composer">
+          <div class="composer-header">
+            <img id="composerAvatar" src="https://i.pravatar.cc/40?u=guest" class="user-avatar" alt="Your Avatar">
+            <textarea class="composer-input" id="postInput" placeholder="Share your research insights with the AI community..." rows="3"></textarea>
           </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
-            <div style="display:flex;gap:8px">
+          <div class="composer-tools">
+            <div class="composer-options">
               <button class="composer-btn">📝 Text</button>
               <button class="composer-btn">💻 Code</button>
               <button class="composer-btn">📄 Paper</button>
               <button class="composer-btn">📊 Poll</button>
             </div>
-            <button id="postButton" class="post-btn">Post</button>
+            <button class="post-btn" id="postButton" onclick="createPost()">Post</button>
           </div>
         </div>
 
-        <div id="postsContainer" aria-live="polite"></div>
-      </section>
+        <!-- Loading indicator -->
+        <div id="postsLoading" class="loading">
+          <div class="spinner"></div>
+          Loading posts...
+        </div>
 
-      <aside class="right-sidebar" aria-label="Right sidebar">
-        <div class="card sidebar-section">
-          <div style="font-weight:700;margin-bottom:8px">Trending in AI</div>
-          <div style="display:flex;flex-direction:column;gap:6px">
-            <div class="trending-item"><span class="trending-hash">#</span> MachineLearning</div>
-            <div class="trending-item"><span class="trending-hash">#</span> NeurIPS2025</div>
-            <div class="trending-item"><span class="trending-hash">#</span> ComputerVision</div>
+        <!-- Posts Container -->
+        <div id="postsContainer">
+          <!-- Posts will be loaded from Firestore -->
+        </div>
+      </main>
+
+      <!-- Right Sidebar -->
+      <aside class="right-sidebar">
+        <div class="sidebar-section">
+          <h3 class="sidebar-title">Trending in AI</h3>
+          <div class="trending-item">
+            <span class="trending-hash">#</span>
+            <span>MachineLearning</span>
+          </div>
+          <div class="trending-item">
+            <span class="trending-hash">#</span>
+            <span>NeurIPS2025</span>
+          </div>
+          <div class="trending-item">
+            <span class="trending-hash">#</span>
+            <span>ComputerVision</span>
+          </div>
+          <div class="trending-item">
+            <span class="trending-hash">#</span>
+            <span>NLP</span>
+          </div>
+          <div class="trending-item">
+            <span class="trending-hash">#</span>
+            <span>DeepLearning</span>
           </div>
         </div>
 
-        <div class="card sidebar-section">
-          <div style="font-weight:700;margin-bottom:8px">Suggested Connections</div>
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <div class="suggested-user">
-              <div style="display:flex;gap:8px;align-items:center">
-                <img src="https://i.pravatar.cc/40?u=john" class="user-avatar" alt="John" />
-                <div><div class="suggested-name">Dr. John Smith</div><div class="suggested-field">Computer Vision</div></div>
+        <div class="sidebar-section">
+          <h3 class="sidebar-title">Suggested Connections</h3>
+          <div class="suggested-user">
+            <div class="suggested-info">
+              <img src="https://i.pravatar.cc/40?u=john" class="user-avatar" alt="Dr. John Smith">
+              <div>
+                <div class="suggested-name">Dr. John Smith</div>
+                <div class="suggested-field">Computer Vision</div>
               </div>
-              <button class="follow-btn">Follow</button>
             </div>
-            <div class="suggested-user">
-              <div style="display:flex;gap:8px;align-items:center">
-                <img src="https://i.pravatar.cc/40?u=lisa" class="user-avatar" alt="Lisa" />
-                <div><div class="suggested-name">Prof. Lisa Wang</div><div class="suggested-field">NLP</div></div>
+            <button class="follow-btn">Follow</button>
+          </div>
+          <div class="suggested-user">
+            <div class="suggested-info">
+              <img src="https://i.pravatar.cc/40?u=lisa" class="user-avatar" alt="Prof. Lisa Wang">
+              <div>
+                <div class="suggested-name">Prof. Lisa Wang</div>
+                <div class="suggested-field">NLP Research</div>
               </div>
-              <button class="follow-btn">Follow</button>
+            </div>
+            <button class="follow-btn">Follow</button>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <h3 class="sidebar-title">Upcoming Events</h3>
+          <div class="trending-item">
+            <div>
+              <div style="font-weight: 600;">NeurIPS 2025</div>
+              <div style="color: #b0b3b8; font-size: 13px;">Dec 10-16, Vancouver</div>
+            </div>
+          </div>
+          <div class="trending-item">
+            <div>
+              <div style="font-weight: 600;">ICML Workshop</div>
+              <div style="color: #b0b3b8; font-size: 13px;">Call for papers open</div>
             </div>
           </div>
         </div>
       </aside>
-    </main>
+    </div>
   </div>
 
-  <!-- Firebase + App Script -->
+  <!-- Firebase and JavaScript -->
   <script type="module">
-    // -----------------------------
-    // Imports (modular Firebase v11)
-    // -----------------------------
+    // Import Firebase functions
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics.js";
-    import {
-      getAuth,
-      createUserWithEmailAndPassword,
-      signInWithEmailAndPassword,
-      onAuthStateChanged,
-      signOut,
-      updateProfile
+    import { 
+      getAuth, 
+      createUserWithEmailAndPassword, 
+      signInWithEmailAndPassword, 
+      onAuthStateChanged, 
+      signOut 
     } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-    import {
-      getFirestore,
-      collection,
-      addDoc,
-      doc,
-      setDoc,
-      getDoc,
-      deleteDoc,
-      updateDoc,
-      onSnapshot,
-      query,
-      orderBy,
-      serverTimestamp,
-      increment
+    import { 
+      getFirestore, 
+      collection, 
+      addDoc, 
+      query, 
+      orderBy, 
+      onSnapshot, 
+      updateDoc, 
+      doc, 
+      increment,
+      serverTimestamp 
     } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-    // -----------------------------
-    // Firebase config — use your own project values
-    // -----------------------------
+    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBytov9p2TGFudvnwQZ1hSi5f9oXaSKDAQ",
       authDomain: "deepnet-social-backend.firebaseapp.com",
@@ -209,56 +933,138 @@
       measurementId: "G-B1ENWRY6JK"
     };
 
+    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
-    try { getAnalytics(app); } catch (e) { /* Analytics may fail in file:// mode */ }
+    const analytics = getAnalytics(app);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // -----------------------------
-    // UI references
-    // -----------------------------
+    // UI Elements
     const loginModal = document.getElementById('loginModal');
     const appDiv = document.getElementById('app');
     const userAvatar = document.getElementById('userAvatar');
     const sidebarAvatar = document.getElementById('sidebarAvatar');
     const composerAvatar = document.getElementById('composerAvatar');
     const profileName = document.getElementById('profileName');
-    const postInput = document.getElementById('postInput');
-    const postButton = document.getElementById('postButton');
-    const postsContainer = document.getElementById('postsContainer');
     const notification = document.getElementById('notification');
-    const loginForm = document.getElementById('loginForm');
-    const signupForm = document.getElementById('signupForm');
-    const loginMessage = document.getElementById('loginMessage');
-    const signupMessage = document.getElementById('signupMessage');
+    const postsContainer = document.getElementById('postsContainer');
+    const postsLoading = document.getElementById('postsLoading');
 
-    // Keep reference to posts snapshot unsubscribe
-    let postsUnsub = null;
-    // Map of comment unsubscribers per post
-    const commentUnsubs = new Map();
-
-    // -----------------------------
-    // Helper: notification
-    // -----------------------------
-    function showNotification(msg, timeout = 2500) {
-      notification.textContent = msg;
+    // Show notification function
+    function showNotification(message, type = 'success') {
+      notification.textContent = message;
+      notification.className = `notification ${type}`;
       notification.classList.add('show');
-      setTimeout(() => notification.classList.remove('show'), timeout);
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
     }
 
-    // -----------------------------
-    // Auth UI: tab switching + modal close
-    // -----------------------------
+    // Format time function
+    function formatTime(timestamp) {
+      if (!timestamp) return 'Just now';
+      
+      const now = new Date();
+      const postTime = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+      const diff = now - postTime;
+      
+      if (diff < 60000) return 'Just now';
+      if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+      if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+      if (diff < 604800000) return `${Math.floor(diff / 86400000)}d ago`;
+      
+      return postTime.toLocaleDateString();
+    }
+
+    // Load posts from Firestore
+    function loadPosts() {
+      const postsQuery = query(
+        collection(db, 'posts'),
+        orderBy('createdAt', 'desc')
+      );
+
+      onSnapshot(postsQuery, (snapshot) => {
+        postsLoading.classList.add('hidden');
+        postsContainer.innerHTML = '';
+
+        snapshot.docs.forEach(doc => {
+          const post = doc.data();
+          const postElement = createPostElement(doc.id, post);
+          postsContainer.appendChild(postElement);
+        });
+
+        if (snapshot.docs.length === 0) {
+          postsContainer.innerHTML = `
+            <div class="card" style="text-align: center; padding: 40px;">
+              <h3 style="color: #8b949e; margin-bottom: 8px;">No posts yet</h3>
+              <p style="color: #8b949e; font-size: 14px;">Be the first to share your research insights!</p>
+            </div>
+          `;
+        }
+      }, (error) => {
+        console.error('Error loading posts:', error);
+        postsLoading.innerHTML = '<p style="color: #e74c3c;">Error loading posts</p>';
+      });
+    }
+
+    // Create post element
+    function createPostElement(postId, post) {
+      const postDiv = document.createElement('div');
+      postDiv.className = 'card post';
+      postDiv.dataset.postId = postId;
+      
+      postDiv.innerHTML = `
+        <div class="post-header">
+          <div class="post-author-info">
+            <img src="${post.authorAvatar}" class="user-avatar" alt="${post.authorName}">
+            <div>
+              <div class="post-author">${post.authorName}</div>
+              <div class="post-time">${formatTime(post.createdAt)}</div>
+            </div>
+          </div>
+          <button class="post-menu" onclick="postMenu('${postId}')">⋯</button>
+        </div>
+        <div class="post-content">${post.content.replace(/\n/g, '<br>')}</div>
+        <div class="post-stats">
+          <span>${post.likes || 0} reactions • ${post.comments || 0} comments</span>
+          <span>0 shares</span>
+        </div>
+        <div class="post-actions">
+          <button class="post-action ${post.likedBy && post.likedBy.includes(auth.currentUser?.uid) ? 'liked' : ''}" onclick="toggleLike('${postId}')">
+            <span>👍</span>
+            <span>Like</span>
+          </button>
+          <button class="post-action" onclick="addComment('${postId}')">
+            <span>💬</span>
+            <span>Comment</span>
+          </button>
+          <button class="post-action" onclick="sharePost('${postId}')">
+            <span>↗️</span>
+            <span>Share</span>
+          </button>
+        </div>
+      `;
+      
+      return postDiv;
+    }
+
+    // Make functions globally available
     window.switchAuthTab = function(tab) {
-      document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+      const loginForm = document.getElementById('loginForm');
+      const signupForm = document.getElementById('signupForm');
+      const tabs = document.querySelectorAll('.auth-tab');
+      
+      tabs.forEach(t => t.classList.remove('active'));
+      
       if (tab === 'login') {
-        document.getElementById('loginForm').classList.remove('hidden');
-        document.getElementById('signupForm').classList.add('hidden');
-        document.getElementById('tabLogin').classList.add('active');
+        loginForm.classList.remove('hidden');
+        signupForm.classList.add('hidden');
+        tabs[0].classList.add('active');
       } else {
-        document.getElementById('loginForm').classList.add('hidden');
-        document.getElementById('signupForm').classList.remove('hidden');
-        document.getElementById('tabSignup').classList.add('active');
+        loginForm.classList.add('hidden');
+        signupForm.classList.remove('hidden');
+        tabs[1].classList.add('active');
       }
     };
 
@@ -266,337 +1072,209 @@
       loginModal.classList.add('hidden');
     };
 
-    // -----------------------------
-    // Signup & Login handlers
-    // -----------------------------
-    signupForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      signupMessage.textContent = '';
-      const email = e.target.email.value.trim();
-      const password = e.target.password.value;
-      try {
-        const userCred = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCred.user;
-        // Save basic profile in Firestore users collection
-        const displayName = email.split('@')[0];
-        await setDoc(doc(db, 'users', user.uid), {
-          email: user.email,
-          displayName,
-          avatarUrl: `https://i.pravatar.cc/40?u=${user.uid}`,
-          createdAt: serverTimestamp()
-        }, { merge: true });
-        // also update auth profile displayName
-        await updateProfile(user, { displayName });
-        signupMessage.className = 'auth-message success';
-        signupMessage.textContent = '✅ Account created successfully!';
-        e.target.reset();
-        setTimeout(() => { loginModal.classList.add('hidden'); }, 800);
-      } catch (err) {
-        signupMessage.className = 'auth-message error';
-        signupMessage.textContent = `❌ ${err.message}`;
-      }
-    });
-
-    loginForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      loginMessage.textContent = '';
-      const email = e.target.email.value.trim();
-      const password = e.target.password.value;
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        loginMessage.className = 'auth-message success';
-        loginMessage.textContent = '✅ Login successful!';
-        e.target.reset();
-        setTimeout(() => { loginModal.classList.add('hidden'); }, 600);
-      } catch (err) {
-        loginMessage.className = 'auth-message error';
-        loginMessage.textContent = `❌ ${err.message}`;
-      }
-    });
-
-    // -----------------------------
-    // Logout
-    // -----------------------------
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
+    window.logoutUser = async function() {
       try {
         await signOut(auth);
-        showNotification('Logged out');
-      } catch (err) {
-        showNotification('Logout failed: ' + err.message);
+        showNotification('Logged out successfully!');
+      } catch (error) {
+        showNotification('Logout failed: ' + error.message, 'error');
       }
-    });
+    };
 
-    // -----------------------------
-    // Posts: real-time listener
-    // -----------------------------
-    function startPostsListener() {
-      if (postsUnsub) { postsUnsub(); postsUnsub = null; }
-      const postsRef = collection(db, 'posts');
-      const q = query(postsRef, orderBy('createdAt', 'desc'));
-      postsUnsub = onSnapshot(q, (snap) => {
-        // render posts
-        postsContainer.innerHTML = '';
-        snap.forEach(docSnap => {
-          const data = docSnap.data();
-          const id = docSnap.id;
-          renderPost(id, data);
-        });
-      }, (err) => {
-        console.error('posts snapshot error', err);
-      });
-    }
-
-    // -----------------------------
-    // Render a single post DOM
-    // -----------------------------
-    function renderPost(postId, data) {
-      const el = document.createElement('div');
-      el.className = 'card post';
-      const createdAtText = data.createdAt ? (data.createdAt.toDate ? data.createdAt.toDate().toLocaleString() : new Date(data.createdAt).toLocaleString()) : 'Just now';
-      const authorName = data.authorName || (data.authorEmail ? data.authorEmail.split('@')[0] : 'Anonymous');
-      const avatarUrl = data.avatarUrl || `https://i.pravatar.cc/40?u=${data.authorId || 'anon'}`;
-      const likeCount = data.likeCount || 0;
-      const commentCount = data.commentCount || 0;
-
-      el.innerHTML = `
-        <div class="post-header">
-          <div class="post-author-info">
-            <img src="${avatarUrl}" class="user-avatar" alt="${authorName}" />
-            <div>
-              <div class="post-author">${escapeHtml(authorName)}</div>
-              <div class="post-time">${escapeHtml(createdAtText)}</div>
-            </div>
-          </div>
-          <div>
-            ${auth.currentUser && auth.currentUser.uid === data.authorId ? `<button class="post-menu" title="Delete">⋯</button>` : ''}
-          </div>
-        </div>
-        <div class="post-content">${escapeHtml(data.content).replace(/\n/g,'<br>')}</div>
-        <div class="post-stats">
-          <span class="likes-count">${likeCount} reactions • ${commentCount} comments</span>
-          <span class="shares-count">0 shares</span>
-        </div>
-        <div class="post-actions">
-          <button class="post-action like-btn">👍 Like</button>
-          <button class="post-action comment-btn">💬 Comment</button>
-          <button class="post-action share-btn">↗️ Share</button>
-        </div>
-        <div class="comments-list hidden" aria-hidden="true"></div>
-      `;
-
-      // attach listeners
-      const likeBtn = el.querySelector('.like-btn');
-      const commentBtn = el.querySelector('.comment-btn');
-      const shareBtn = el.querySelector('.share-btn');
-      const commentsList = el.querySelector('.comments-list');
-
-      // determine if current user already liked (async)
-      if (auth.currentUser) {
-        const likeDocRef = doc(db, 'posts', postId, 'likes', auth.currentUser.uid);
-        getDoc(likeDocRef).then(snapshot => {
-          if (snapshot.exists()) likeBtn.classList.add('liked');
-        }).catch(e => console.warn('like check failed', e));
-      }
-
-      likeBtn.addEventListener('click', async () => {
-        if (!auth.currentUser) { showNotification('Please log in to like posts'); return; }
-        try {
-          const likeDocRef = doc(db, 'posts', postId, 'likes', auth.currentUser.uid);
-          const likeDoc = await getDoc(likeDocRef);
-          const postRef = doc(db, 'posts', postId);
-          if (likeDoc.exists()) {
-            await deleteDoc(likeDocRef);
-            await updateDoc(postRef, { likeCount: increment(-1) });
-            likeBtn.classList.remove('liked');
-          } else {
-            await setDoc(likeDocRef, { uid: auth.currentUser.uid, createdAt: serverTimestamp() });
-            await updateDoc(postRef, { likeCount: increment(1) });
-            likeBtn.classList.add('liked');
-          }
-        } catch (err) {
-          console.error('toggle like failed', err);
-          showNotification('Failed to toggle like: ' + err.message);
-        }
-      });
-
-      commentBtn.addEventListener('click', () => {
-        toggleCommentsArea(postId, commentsList, !commentsList.classList.contains('hidden'));
-      });
-
-      shareBtn.addEventListener('click', () => {
-        showNotification('Post shared! 🔄');
-        // share count not implemented but could update DB similarly
-      });
-
-      // insert at end
-      postsContainer.appendChild(el);
-    }
-
-    // -----------------------------
-    // Comments area toggling + realtime comments subscription
-    // -----------------------------
-    function toggleCommentsArea(postId, commentsEl, opening) {
-      if (!opening) {
-        // open: subscribe comments and render form
-        commentsEl.classList.remove('hidden');
-        commentsEl.innerHTML = `<div style="margin:8px 0 12px;font-weight:600;color:#b0b3b8">Comments</div>
-                                <div class="comments-list-items"></div>
-                                <div class="comment-form">
-                                  <input class="comment-input" placeholder="Write a comment..." />
-                                  <button class="comment-btn">Post</button>
-                                </div>`;
-        commentsEl.setAttribute('aria-hidden', 'false');
-
-        const itemsWrap = commentsEl.querySelector('.comments-list-items');
-        const commentInput = commentsEl.querySelector('.comment-input');
-        const commentBtn = commentsEl.querySelector('.comment-btn');
-
-        // attach click
-        commentBtn.addEventListener('click', async () => {
-          const text = commentInput.value.trim();
-          if (!text) { showNotification('Please write a comment'); return; }
-          if (!auth.currentUser) { showNotification('Please login to comment'); return; }
-          try {
-            const commentsCol = collection(db, 'posts', postId, 'comments');
-            await addDoc(commentsCol, {
-              authorId: auth.currentUser.uid,
-              authorName: auth.currentUser.displayName || auth.currentUser.email.split('@')[0],
-              content: text,
-              createdAt: serverTimestamp()
-            });
-            // increment commentCount on post
-            const postRef = doc(db, 'posts', postId);
-            await updateDoc(postRef, { commentCount: increment(1) });
-            commentInput.value = '';
-          } catch (err) {
-            console.error('add comment failed', err);
-            showNotification('Failed to add comment: ' + err.message);
-          }
-        });
-
-        // subscribe to comments
-        const commentsQuery = query(collection(db, 'posts', postId, 'comments'), orderBy('createdAt', 'asc'));
-        const unsub = onSnapshot(commentsQuery, (snap) => {
-          itemsWrap.innerHTML = '';
-          snap.forEach(cDoc => {
-            const c = cDoc.data();
-            const created = c.createdAt ? (c.createdAt.toDate ? c.createdAt.toDate().toLocaleString() : new Date(c.createdAt).toLocaleString()) : 'Just now';
-            const div = document.createElement('div');
-            div.className = 'comment-item';
-            div.innerHTML = `<div class="comment-meta"><strong>${escapeHtml(c.authorName)}</strong> • <span>${escapeHtml(created)}</span></div>
-                             <div class="comment-text">${escapeHtml(c.content)}</div>`;
-            itemsWrap.appendChild(div);
-          });
-        });
-        // store unsubscribe for cleanup if needed
-        commentUnsubs.set(postId, unsub);
-      } else {
-        // close: unsubscribe and hide
-        if (commentUnsubs.has(postId)) {
-          commentUnsubs.get(postId)();
-          commentUnsubs.delete(postId);
-        }
-        commentsEl.classList.add('hidden');
-        commentsEl.setAttribute('aria-hidden', 'true');
-      }
-    }
-
-    // -----------------------------
-    // Create post (write to Firestore)
-    // -----------------------------
-    document.getElementById('postButton').addEventListener('click', async () => {
+    // Enhanced createPost function with Firestore
+    window.createPost = async function() {
+      const postInput = document.getElementById('postInput');
+      const postButton = document.getElementById('postButton');
       const content = postInput.value.trim();
+      
       if (!content) {
-        showNotification('Please enter some content for your post');
+        showNotification('Please enter some content for your post!', 'error');
         return;
       }
+
       if (!auth.currentUser) {
-        showNotification('Please log in to create a post');
+        showNotification('Please log in to create a post!', 'error');
         return;
       }
+
+      // Disable button temporarily
       postButton.disabled = true;
       postButton.textContent = 'Posting...';
+
       try {
         const user = auth.currentUser;
+        const avatarUrl = user.photoURL || `https://i.pravatar.cc/40?u=${user.uid}`;
+        const userName = user.displayName || user.email.split('@')[0];
+        
+        // Save to Firestore
         await addDoc(collection(db, 'posts'), {
-          content,
+          content: content,
           authorId: user.uid,
+          authorName: userName,
           authorEmail: user.email,
-          authorName: user.displayName || user.email.split('@')[0],
-          avatarUrl: user.photoURL || `https://i.pravatar.cc/40?u=${user.uid}`,
-          likeCount: 0,
-          commentCount: 0,
-          createdAt: serverTimestamp()
+          authorAvatar: avatarUrl,
+          createdAt: serverTimestamp(),
+          likes: 0,
+          comments: 0,
+          likedBy: []
         });
+        
+        // Clear input and show success
         postInput.value = '';
-        showNotification('Post created ✅');
-      } catch (err) {
-        console.error('create post failed', err);
-        showNotification('Failed to create post: ' + err.message);
+        showNotification('Post created successfully! 🎉');
+        
+      } catch (error) {
+        console.error('Error creating post:', error);
+        showNotification('Failed to create post: ' + error.message, 'error');
       } finally {
+        // Re-enable button
         postButton.disabled = false;
         postButton.textContent = 'Post';
       }
-    });
+    };
 
-    // Also allow Ctrl+Enter for posting
-    postInput.addEventListener('keydown', (e) => {
-      if (e.ctrlKey && e.key === 'Enter') { document.getElementById('postButton').click(); }
-    });
+    // Toggle like function with Firestore
+    window.toggleLike = async function(postId) {
+      if (!auth.currentUser) {
+        showNotification('Please log in to like posts!', 'error');
+        return;
+      }
 
-    // -----------------------------
-    // Utility: escape HTML to prevent XSS
-    // -----------------------------
-    function escapeHtml(s) {
-      if (!s && s !== 0) return '';
-      return String(s)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
+      try {
+        const postRef = doc(db, 'posts', postId);
+        const userId = auth.currentUser.uid;
+        const postElement = document.querySelector(`[data-post-id="${postId}"]`);
+        const likeButton = postElement.querySelector('.post-action');
+        
+        if (likeButton.classList.contains('liked')) {
+          // Unlike
+          await updateDoc(postRef, {
+            likes: increment(-1),
+            likedBy: [...(postElement.dataset.likedBy || '').split(',').filter(id => id !== userId)]
+          });
+        } else {
+          // Like
+          await updateDoc(postRef, {
+            likes: increment(1),
+            likedBy: [...(postElement.dataset.likedBy || '').split(','), userId].filter(id => id)
+          });
+        }
+        
+      } catch (error) {
+        console.error('Error toggling like:', error);
+        showNotification('Error updating like', 'error');
+      }
+    };
 
-    // -----------------------------
-    // Start listening for posts right away (public feed)
-    // -----------------------------
-    startPostsListener();
+    window.addComment = function(postId) {
+      const comment = prompt('Enter your comment:');
+      if (comment && comment.trim()) {
+        // In a real app, you would save comments to Firestore
+        showNotification('Comment added! 💬');
+      }
+    };
 
-    // -----------------------------
-    // Auth state handling - update UI and authorizations
-    // -----------------------------
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        // update UI
-        loginModal.classList.add('hidden');
-        appDiv.classList.remove('hidden');
-        appDiv.setAttribute('aria-hidden', 'false');
-        const avatarUrl = user.photoURL || `https://i.pravatar.cc/40?u=${user.uid}`;
-        userAvatar.src = avatarUrl;
-        sidebarAvatar.src = avatarUrl;
-        composerAvatar.src = avatarUrl;
-        profileName.textContent = user.displayName || user.email.split('@')[0];
-        showNotification(`Welcome ${profileName.textContent}`, 1600);
-      } else {
-        // show login modal
-        loginModal.classList.remove('hidden');
-        appDiv.classList.add('hidden');
-        appDiv.setAttribute('aria-hidden', 'true');
-        userAvatar.src = 'https://i.pravatar.cc/40?u=guest';
-        sidebarAvatar.src = 'https://i.pravatar.cc/40?u=guest';
-        composerAvatar.src = 'https://i.pravatar.cc/40?u=guest';
-        profileName.textContent = 'Your Profile';
+    window.sharePost = function(postId) {
+      showNotification('Post shared! 🔄');
+    };
+
+    window.postMenu = function(postId) {
+      if (confirm('Delete this post?')) {
+        // In a real app, you would delete from Firestore
+        showNotification('Post deleted!');
+      }
+    };
+
+    // Close modal when clicking outside
+    loginModal.addEventListener('click', function(e) {
+      if (e.target === loginModal) {
+        closeModal();
       }
     });
 
-    // Clean up comment listeners on unload
-    window.addEventListener('beforeunload', () => {
-      if (postsUnsub) postsUnsub();
-      commentUnsubs.forEach(unsub => unsub());
-      commentUnsubs.clear();
+    // Enable Enter key to post (Ctrl+Enter)
+    document.getElementById('postInput').addEventListener('keydown', function(e) {
+      if (e.ctrlKey && e.key === 'Enter') {
+        createPost();
+      }
     });
 
-    console.log('DeepNet Social (Firestore-backed) loaded');
+    // Authentication handlers
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = e.target.email.value;
+      const password = e.target.password.value;
+      const messageEl = document.getElementById('signupMessage');
+      
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        messageEl.className = 'auth-message success';
+        messageEl.textContent = '✅ Account created successfully!';
+        e.target.reset();
+        setTimeout(() => {
+          loginModal.classList.add('hidden');
+        }, 1000);
+      } catch (error) {
+        messageEl.className = 'auth-message error';
+        messageEl.textContent = `❌ ${error.message}`;
+      }
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = e.target.email.value;
+      const password = e.target.password.value;
+      const messageEl = document.getElementById('loginMessage');
+      
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        messageEl.className = 'auth-message success';
+        messageEl.textContent = '✅ Login successful!';
+        e.target.reset();
+        setTimeout(() => {
+          loginModal.classList.add('hidden');
+        }, 1000);
+      } catch (error) {
+        messageEl.className = 'auth-message error';
+        messageEl.textContent = `❌ ${error.message}`;
+      }
+    });
+
+    // Auth state listener
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User logged in
+        loginModal.classList.add('hidden');
+        appDiv.classList.remove('hidden');
+        
+        const avatarUrl = user.photoURL || `https://i.pravatar.cc/40?u=${user.uid}`;
+        const userName = user.displayName || user.email.split('@')[0];
+        
+        userAvatar.src = avatarUrl;
+        sidebarAvatar.src = avatarUrl;
+        composerAvatar.src = avatarUrl;
+        profileName.textContent = userName;
+        
+        // Load posts when user is authenticated
+        loadPosts();
+        
+        console.log('User logged in:', user.email);
+      } else {
+        // User logged out
+        loginModal.classList.remove('hidden');
+        appDiv.classList.add('hidden');
+        
+        const guestAvatar = 'https://i.pravatar.cc/40?u=guest';
+        userAvatar.src = guestAvatar;
+        sidebarAvatar.src = guestAvatar;
+        composerAvatar.src = guestAvatar;
+        profileName.textContent = 'Your Profile';
+        
+        console.log('User logged out');
+      }
+    });
+
+    console.log('🧠 DeepNet Social - Enhanced with persistent posts loaded!');
   </script>
 </body>
 </html>
