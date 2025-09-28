@@ -1,4 +1,3 @@
-implement this code in the given code in such a way so that all good feature can also come in this given code
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,6 +38,7 @@ implement this code in the given code in such a way so that all good feature can
       padding: 32px;
       width: 400px;
       max-width: 90%;
+      position: relative;
     }
 
     .login-header {
@@ -56,6 +56,23 @@ implement this code in the given code in such a way so that all good feature can
     .login-subtitle {
       color: #b0b3b8;
       font-size: 16px;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #b0b3b8;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px;
+    }
+
+    .modal-close:hover {
+      color: #e4e6ea;
     }
 
     .auth-tabs {
@@ -250,12 +267,8 @@ implement this code in the given code in such a way so that all good feature can
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      background-color: #1877f2;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
       cursor: pointer;
+      object-fit: cover;
     }
 
     .logout-btn {
@@ -624,6 +637,7 @@ implement this code in the given code in such a way so that all good feature can
   <!-- Login Modal -->
   <div id="loginModal" class="login-modal">
     <div class="login-content">
+      <button class="modal-close" onclick="closeModal()">&times;</button>
       <div class="login-header">
         <div class="login-logo">🧠 DeepNet Social</div>
         <div class="login-subtitle">Connect with AI researchers worldwide</div>
@@ -636,10 +650,10 @@ implement this code in the given code in such a way so that all good feature can
       
       <form id="loginForm" class="auth-form">
         <div class="form-group">
-          <input type="email" class="form-input" id="loginEmail" placeholder="Email address" required>
+          <input type="email" class="form-input" name="email" placeholder="Email address" required>
         </div>
         <div class="form-group">
-          <input type="password" class="form-input" id="loginPassword" placeholder="Password" required>
+          <input type="password" class="form-input" name="password" placeholder="Password" required>
         </div>
         <button type="submit" class="auth-btn">Log In</button>
         <div id="loginMessage" class="auth-message"></div>
@@ -647,10 +661,10 @@ implement this code in the given code in such a way so that all good feature can
       
       <form id="signupForm" class="auth-form hidden">
         <div class="form-group">
-          <input type="email" class="form-input" id="signupEmail" placeholder="Email address" required>
+          <input type="email" class="form-input" name="email" placeholder="Email address" required>
         </div>
         <div class="form-group">
-          <input type="password" class="form-input" id="signupPassword" placeholder="Create password" minlength="6" required>
+          <input type="password" class="form-input" name="password" placeholder="Create password" minlength="6" required>
         </div>
         <button type="submit" class="auth-btn">Sign Up</button>
         <div id="signupMessage" class="auth-message"></div>
@@ -682,7 +696,7 @@ implement this code in the given code in such a way so that all good feature can
         <div class="header-actions">
           <button class="icon-btn">🔔</button>
           <button class="icon-btn">💬</button>
-          <div class="user-avatar" id="userAvatar">👩‍🔬</div>
+          <img id="userAvatar" src="https://i.pravatar.cc/40?u=guest" class="user-avatar" alt="User Avatar">
           <button class="logout-btn" onclick="logoutUser()">Logout</button>
         </div>
       </div>
@@ -693,7 +707,7 @@ implement this code in the given code in such a way so that all good feature can
       <!-- Left Sidebar -->
       <aside class="left-sidebar">
         <a href="#" class="sidebar-item">
-          <div class="sidebar-icon" id="profileIcon">👩‍🔬</div>
+          <img id="sidebarAvatar" src="https://i.pravatar.cc/40?u=guest" class="sidebar-icon" style="border-radius: 50%;" alt="Profile">
           <span class="sidebar-text" id="profileName">Your Profile</span>
         </a>
         <a href="#" class="sidebar-item">
@@ -723,7 +737,7 @@ implement this code in the given code in such a way so that all good feature can
         <!-- Post Composer -->
         <div class="card post-composer">
           <div class="composer-header">
-            <div class="user-avatar">👩‍🔬</div>
+            <img id="composerAvatar" src="https://i.pravatar.cc/40?u=guest" class="user-avatar" alt="Your Avatar">
             <textarea class="composer-input" id="postInput" placeholder="Share your research insights with the AI community..."></textarea>
           </div>
           <div class="composer-tools">
@@ -743,7 +757,7 @@ implement this code in the given code in such a way so that all good feature can
           <div class="card post">
             <div class="post-header">
               <div class="post-author-info">
-                <div class="user-avatar">👨‍💼</div>
+                <img src="https://i.pravatar.cc/40?u=alex" class="user-avatar" alt="Dr. Alex Chen">
                 <div>
                   <div class="post-author">Dr. Alex Chen</div>
                   <div class="post-time">2 hours ago</div>
@@ -779,7 +793,7 @@ implement this code in the given code in such a way so that all good feature can
           <div class="card post">
             <div class="post-header">
               <div class="post-author-info">
-                <div class="user-avatar">👩‍💻</div>
+                <img src="https://i.pravatar.cc/40?u=sarah" class="user-avatar" alt="Prof. Sarah Kim">
                 <div>
                   <div class="post-author">Prof. Sarah Kim</div>
                   <div class="post-time">4 hours ago</div>
@@ -849,7 +863,7 @@ implement this code in the given code in such a way so that all good feature can
           <h3 class="sidebar-title">Suggested Connections</h3>
           <div class="suggested-user">
             <div class="suggested-info">
-              <div class="user-avatar">👨‍🔬</div>
+              <img src="https://i.pravatar.cc/40?u=john" class="user-avatar" alt="Dr. John Smith">
               <div>
                 <div class="suggested-name">Dr. John Smith</div>
                 <div class="suggested-field">Computer Vision</div>
@@ -859,7 +873,7 @@ implement this code in the given code in such a way so that all good feature can
           </div>
           <div class="suggested-user">
             <div class="suggested-info">
-              <div class="user-avatar">👩‍💻</div>
+              <img src="https://i.pravatar.cc/40?u=lisa" class="user-avatar" alt="Prof. Lisa Wang">
               <div>
                 <div class="suggested-name">Prof. Lisa Wang</div>
                 <div class="suggested-field">NLP Research</div>
@@ -891,15 +905,15 @@ implement this code in the given code in such a way so that all good feature can
   <!-- Firebase ES6 Modules -->
   <script type="module">
     // Import Firebase functions
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics.js";
     import { 
       getAuth, 
       createUserWithEmailAndPassword, 
       signInWithEmailAndPassword, 
       onAuthStateChanged, 
       signOut 
-    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
     // Firebase configuration
     const firebaseConfig = {
@@ -916,6 +930,14 @@ implement this code in the given code in such a way so that all good feature can
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
     const auth = getAuth(app);
+
+    // UI Elements
+    const loginModal = document.getElementById('loginModal');
+    const appDiv = document.getElementById('app');
+    const userAvatar = document.getElementById('userAvatar');
+    const sidebarAvatar = document.getElementById('sidebarAvatar');
+    const composerAvatar = document.getElementById('composerAvatar');
+    const profileName = document.getElementById('profileName');
 
     // Make functions globally available
     window.switchAuthTab = function(tab) {
@@ -936,8 +958,17 @@ implement this code in the given code in such a way so that all good feature can
       }
     };
 
-    window.logoutUser = function() {
-      signOut(auth);
+    window.closeModal = function() {
+      loginModal.classList.add('hidden');
+    };
+
+    window.logoutUser = async function() {
+      try {
+        await signOut(auth);
+        alert('Logged out successfully!');
+      } catch (error) {
+        alert('Logout failed: ' + error.message);
+      }
     };
 
     window.createPost = function() {
@@ -945,14 +976,17 @@ implement this code in the given code in such a way so that all good feature can
       const content = postInput.value.trim();
       
       if (content) {
+        const user = auth.currentUser;
+        const avatarUrl = user?.photoURL || `https://i.pravatar.cc/40?u=${user?.uid || 'default'}`;
+        
         // Create new post element
         const newPost = `
           <div class="card post">
             <div class="post-header">
               <div class="post-author-info">
-                <div class="user-avatar">👩‍🔬</div>
+                <img src="${avatarUrl}" class="user-avatar" alt="${user?.email || 'You'}">
                 <div>
-                  <div class="post-author">${auth.currentUser?.email || 'You'}</div>
+                  <div class="post-author">${user?.email || 'You'}</div>
                   <div class="post-time">Just now</div>
                 </div>
               </div>
@@ -982,6 +1016,7 @@ implement this code in the given code in such a way so that all good feature can
         
         document.getElementById('postsContainer').insertAdjacentHTML('afterbegin', newPost);
         postInput.value = '';
+        alert('Post created successfully!');
       }
     };
 
@@ -989,17 +1024,28 @@ implement this code in the given code in such a way so that all good feature can
       button.classList.toggle('liked');
     };
 
+    // Close modal when clicking outside
+    loginModal.addEventListener('click', function(e) {
+      if (e.target === loginModal) {
+        closeModal();
+      }
+    });
+
     // Authentication handlers
     document.getElementById('signupForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = document.getElementById('signupEmail').value;
-      const password = document.getElementById('signupPassword').value;
+      const email = e.target.email.value;
+      const password = e.target.password.value;
       const messageEl = document.getElementById('signupMessage');
       
       try {
         await createUserWithEmailAndPassword(auth, email, password);
         messageEl.className = 'auth-message success';
         messageEl.textContent = '✅ Account created successfully!';
+        e.target.reset(); // Reset form
+        setTimeout(() => {
+          loginModal.classList.add('hidden');
+        }, 1000);
       } catch (error) {
         messageEl.className = 'auth-message error';
         messageEl.textContent = `❌ ${error.message}`;
@@ -1008,43 +1054,54 @@ implement this code in the given code in such a way so that all good feature can
 
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = document.getElementById('loginEmail').value;
-      const password = document.getElementById('loginPassword').value;
+      const email = e.target.email.value;
+      const password = e.target.password.value;
       const messageEl = document.getElementById('loginMessage');
       
       try {
         await signInWithEmailAndPassword(auth, email, password);
         messageEl.className = 'auth-message success';
         messageEl.textContent = '✅ Login successful!';
+        e.target.reset(); // Reset form
+        setTimeout(() => {
+          loginModal.classList.add('hidden');
+        }, 1000);
       } catch (error) {
         messageEl.className = 'auth-message error';
         messageEl.textContent = `❌ ${error.message}`;
       }
     });
 
-    // Auth state listener
+    // Auth state listener with dynamic avatars
     onAuthStateChanged(auth, (user) => {
-      const loginModal = document.getElementById('loginModal');
-      const app = document.getElementById('app');
-      const profileName = document.getElementById('profileName');
-      
       if (user) {
-        // User logged in - show app
+        // User logged in - show app with dynamic avatar
         loginModal.classList.add('hidden');
-        app.classList.remove('hidden');
-        if (profileName) {
-          profileName.textContent = user.email;
-        }
+        appDiv.classList.remove('hidden');
+        
+        const avatarUrl = user.photoURL || `https://i.pravatar.cc/40?u=${user.uid}`;
+        userAvatar.src = avatarUrl;
+        sidebarAvatar.src = avatarUrl;
+        composerAvatar.src = avatarUrl;
+        profileName.textContent = user.email;
+        
         console.log('User logged in:', user.email);
       } else {
-        // User logged out - show login modal
+        // User logged out - show login modal with guest avatar
         loginModal.classList.remove('hidden');
-        app.classList.add('hidden');
+        appDiv.classList.add('hidden');
+        
+        const guestAvatar = 'https://i.pravatar.cc/40?u=guest';
+        userAvatar.src = guestAvatar;
+        sidebarAvatar.src = guestAvatar;
+        composerAvatar.src = guestAvatar;
+        profileName.textContent = 'Your Profile';
+        
         console.log('User logged out');
       }
     });
 
-    console.log('🧠 DeepNet Social - Facebook-style AI research platform loaded!');
+    console.log('🧠 DeepNet Social - Enhanced Facebook-style platform loaded!');
   </script>
 </body>
 </html>
