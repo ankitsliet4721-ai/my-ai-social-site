@@ -967,8 +967,136 @@
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
     const auth = getAuth(app);
+      if (tab === 'login') {
+        loginForm.classList.remove('hidden');
+        signupForm.classList.add('hidden');
+        tabs[0].classList.add('active');
+      } else {
+        loginForm.classList.add('hidden');
+        signupForm.classList.remove('hidden');
+        tabs[1].classList.add('active');
+      }
+    };
 
-    // UI Elements
+    // Close modal
+    window.closeModal = function() {
+      loginModal.classList.add('hidden');
+    };
+
+    // Login form
+    const loginForm = document.getElementById('loginForm');
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = loginForm.email.value;
+      const password = loginForm.password.value;
+      const messageDiv = document.getElementById('loginMessage');
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        messageDiv.textContent = "Login successful!";
+        messageDiv.className = "auth-message success";
+        setTimeout(() => { closeModal(); }, 1000);
+      } catch (error) {
+        messageDiv.textContent = error.message;
+        messageDiv.className = "auth-message error";
+      }
+    });
+
+    // Signup form
+    const signupForm = document.getElementById('signupForm');
+    signupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = signupForm.email.value;
+      const password = signupForm.password.value;
+      const messageDiv = document.getElementById('signupMessage');
+
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        messageDiv.textContent = "Account created successfully!";
+        messageDiv.className = "auth-message success";
+        setTimeout(() => { closeModal(); }, 1000);
+      } catch (error) {
+        messageDiv.textContent = error.message;
+        messageDiv.className = "auth-message error";
+      }
+    });
+
+    // Auth state listener
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loginModal.classList.add('hidden');
+        appDiv.classList.remove('hidden');
+
+        // Personalize avatar and name
+        userAvatar.src = `https://i.pravatar.cc/40?u=${user.uid}`;
+        sidebarAvatar.src = `https://i.pravatar.cc/40?u=${user.uid}`;
+        composerAvatar.src = `https://i.pravatar.cc/40?u=${user.uid}`;
+        profileName.textContent = user.email.split('@')[0];
+
+        showNotification("Welcome back, " + user.email, "success");
+      } else {
+        loginModal.classList.remove('hidden');
+        appDiv.classList.add('hidden');
+      }
+    });
+
+    // Logout
+    window.logoutUser = async function() {
+      await signOut(auth);
+      showNotification("Logged out successfully", "success");
+    };
+
+    // Create post
+    window.createPost = function() {
+      const postInput = document.getElementById('postInput');
+      const postsContainer = document.getElementById('postsContainer');
+      const content = postInput.value.trim();
+
+      if (!content) return;
+
+      const newPost = document.createElement('div');
+      newPost.classList.add('card', 'post');
+      newPost.innerHTML = `
+        <div class="post-header">
+          <div class="post-author-info">
+            <img src="${userAvatar.src}" class="user-avatar" alt="User">
+            <div>
+              <div class="post-author">${profileName.textContent}</div>
+              <div class="post-time">Just now</div>
+            </div>
+          </div>
+          <button class="post-menu">⋯</button>
+        </div>
+        <div class="post-content">${content}</div>
+        <div class="post-stats">
+          <span>0 reactions • 0 comments</span>
+          <span>0 shares</span>
+        </div>
+        <div class="post-actions">
+          <button class="post-action" onclick="toggleLike(this)">
+            <span>👍</span><span>Like</span>
+          </button>
+          <button class="post-action">
+            <span>💬</span><span>Comment</span>
+          </button>
+          <button class="post-action">
+            <span>↗️</span><span>Share</span>
+          </button>
+        </div>
+      `;
+      postsContainer.prepend(newPost);
+      postInput.value = '';
+      showNotification("Post created!", "success");
+    };
+
+    // Like toggle
+    window.toggleLike = function(button) {
+      button.classList.toggle('liked');
+    };
+  </script>
+</body>
+</html>
+  // UI Elements
     const loginModal = document.getElementById('loginModal');
     const appDiv = document.getElementById('app');
     const userAvatar = document.getElementById('userAvatar');
