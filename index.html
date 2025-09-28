@@ -1,906 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DeepNet Social - AI Research Community</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-      background-color: #18191a;
-      color: #e4e6ea;
-      line-height: 1.34;
-    }
-
-    /* Login Modal */
-    .login-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.8);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 2000;
-    }
-
-    .login-content {
-      background-color: #242526;
-      border-radius: 12px;
-      padding: 32px;
-      width: 400px;
-      max-width: 90%;
-      position: relative;
-    }
-
-    .login-header {
-      text-align: center;
-      margin-bottom: 24px;
-    }
-
-    .login-logo {
-      font-size: 32px;
-      font-weight: bold;
-      color: #1877f2;
-      margin-bottom: 8px;
-    }
-
-    .login-subtitle {
-      color: #b0b3b8;
-      font-size: 16px;
-    }
-
-    .modal-close {
-      position: absolute;
-      top: 16px;
-      right: 20px;
-      font-size: 24px;
-      font-weight: bold;
-      color: #b0b3b8;
-      cursor: pointer;
-      background: none;
-      border: none;
-      padding: 4px;
-    }
-
-    .modal-close:hover {
-      color: #e4e6ea;
-    }
-
-    .auth-tabs {
-      display: flex;
-      margin-bottom: 20px;
-      background-color: #3a3b3c;
-      border-radius: 8px;
-      padding: 4px;
-    }
-
-    .auth-tab {
-      flex: 1;
-      background: none;
-      border: none;
-      padding: 12px;
-      color: #b0b3b8;
-      cursor: pointer;
-      border-radius: 6px;
-      font-weight: 600;
-      transition: all 0.2s;
-    }
-
-    .auth-tab.active {
-      background-color: #1877f2;
-      color: white;
-    }
-
-    .auth-form {
-      display: block;
-    }
-
-    .auth-form.hidden {
-      display: none;
-    }
-
-    .form-group {
-      margin-bottom: 16px;
-    }
-
-    .form-input {
-      width: 100%;
-      padding: 14px 16px;
-      background-color: #3a3b3c;
-      border: 1px solid #3e4042;
-      border-radius: 8px;
-      color: #e4e6ea;
-      font-size: 16px;
-    }
-
-    .form-input:focus {
-      outline: none;
-      border-color: #1877f2;
-    }
-
-    .form-input::placeholder {
-      color: #b0b3b8;
-    }
-
-    .auth-btn {
-      width: 100%;
-      padding: 14px;
-      background-color: #1877f2;
-      border: none;
-      border-radius: 8px;
-      color: white;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-
-    .auth-btn:hover {
-      background-color: #166fe5;
-    }
-
-    .auth-message {
-      margin-top: 12px;
-      padding: 8px;
-      border-radius: 6px;
-      font-size: 14px;
-      text-align: center;
-    }
-
-    .auth-message.success {
-      background-color: rgba(24, 119, 242, 0.2);
-      color: #1877f2;
-    }
-
-    .auth-message.error {
-      background-color: rgba(244, 67, 54, 0.2);
-      color: #f44336;
-    }
-
-    /* Header */
-    .header {
-      background-color: #242526;
-      border-bottom: 1px solid #3e4042;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-      height: 60px;
-    }
-
-    .header-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 16px;
-      height: 100%;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 24px;
-      font-weight: bold;
-      color: #1877f2;
-      text-decoration: none;
-    }
-
-    .search-bar {
-      flex: 1;
-      max-width: 320px;
-      margin: 0 16px;
-    }
-
-    .search-input {
-      width: 100%;
-      background-color: #3a3b3c;
-      border: none;
-      border-radius: 50px;
-      padding: 10px 16px;
-      color: #e4e6ea;
-      font-size: 15px;
-    }
-
-    .search-input::placeholder {
-      color: #b0b3b8;
-    }
-
-    .header-nav {
-      display: flex;
-      gap: 8px;
-    }
-
-    .nav-item {
-      padding: 12px 16px;
-      border-radius: 8px;
-      color: #b0b3b8;
-      text-decoration: none;
-      transition: all 0.2s;
-      font-weight: 600;
-    }
-
-    .nav-item:hover,
-    .nav-item.active {
-      background-color: #3a3b3c;
-      color: #1877f2;
-    }
-
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .icon-btn {
-      width: 40px;
-      height: 40px;
-      background-color: #3a3b3c;
-      border: none;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #e4e6ea;
-      cursor: pointer;
-      font-size: 16px;
-      transition: background-color 0.2s;
-    }
-
-    .icon-btn:hover {
-      background-color: #4e4f50;
-    }
-
-    .user-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      cursor: pointer;
-      object-fit: cover;
-    }
-
-    .logout-btn {
-      background-color: #e74c3c;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: background-color 0.2s;
-    }
-
-    .logout-btn:hover {
-      background-color: #c0392b;
-    }
-
-    /* Main Layout */
-    .main-container {
-      margin-top: 60px;
-      display: flex;
-      max-width: 1200px;
-      margin-left: auto;
-      margin-right: auto;
-      gap: 20px;
-      padding: 20px 16px;
-    }
-
-    /* Left Sidebar */
-    .left-sidebar {
-      width: 280px;
-      position: sticky;
-      top: 80px;
-      height: calc(100vh - 80px);
-      overflow-y: auto;
-    }
-
-    .sidebar-item {
-      display: flex;
-      align-items: center;
-      padding: 8px 8px;
-      border-radius: 8px;
-      color: #e4e6ea;
-      text-decoration: none;
-      transition: background-color 0.2s;
-      margin-bottom: 4px;
-    }
-
-    .sidebar-item:hover {
-      background-color: #3a3b3c;
-    }
-
-    .sidebar-icon {
-      width: 36px;
-      height: 36px;
-      margin-right: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      border-radius: 50%;
-      background-color: #3a3b3c;
-    }
-
-    .sidebar-text {
-      font-weight: 500;
-    }
-
-    /* Main Feed */
-    .main-feed {
-      flex: 1;
-      max-width: 500px;
-    }
-
-    .card {
-      background-color: #242526;
-      border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 16px;
-      border: 1px solid #3e4042;
-    }
-
-    /* Post Composer */
-    .post-composer {
-      margin-bottom: 20px;
-    }
-
-    .composer-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .composer-input {
-      background-color: #3a3b3c;
-      border: none;
-      border-radius: 24px;
-      padding: 12px 16px;
-      color: #e4e6ea;
-      font-size: 16px;
-      width: 100%;
-      resize: none;
-      min-height: 44px;
-      font-family: inherit;
-    }
-
-    .composer-input::placeholder {
-      color: #b0b3b8;
-    }
-
-    .composer-input:focus {
-      outline: none;
-      border: 2px solid #1877f2;
-    }
-
-    .composer-tools {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 16px;
-      padding-top: 12px;
-      border-top: 1px solid #3e4042;
-    }
-
-    .composer-options {
-      display: flex;
-      gap: 8px;
-    }
-
-    .composer-btn {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      background: none;
-      border: none;
-      border-radius: 6px;
-      color: #b0b3b8;
-      cursor: pointer;
-      transition: background-color 0.2s;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .composer-btn:hover {
-      background-color: #3a3b3c;
-    }
-
-    .post-btn {
-      background-color: #1877f2;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 8px 20px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.2s;
-      min-width: 80px;
-    }
-
-    .post-btn:hover {
-      background-color: #166fe5;
-    }
-
-    .post-btn:disabled {
-      background-color: #4a4a4a;
-      cursor: not-allowed;
-    }
-
-    /* Posts */
-    .post {
-      margin-bottom: 20px;
-    }
-
-    .post-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-
-    .post-author-info {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .post-author {
-      font-weight: 600;
-      color: #e4e6ea;
-    }
-
-    .post-time {
-      color: #b0b3b8;
-      font-size: 13px;
-    }
-
-    .post-menu {
-      background: none;
-      border: none;
-      color: #b0b3b8;
-      cursor: pointer;
-      padding: 8px;
-      border-radius: 50%;
-      font-size: 16px;
-    }
-
-    .post-menu:hover {
-      background-color: #3a3b3c;
-    }
-
-    .post-content {
-      margin-bottom: 16px;
-      line-height: 1.4;
-      color: #e4e6ea;
-      font-size: 16px;
-      word-wrap: break-word;
-    }
-
-    .post-stats {
-      display: flex;
-      justify-content: space-between;
-      color: #b0b3b8;
-      font-size: 13px;
-      margin-bottom: 8px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid #3e4042;
-    }
-
-    .post-actions {
-      display: flex;
-      justify-content: space-around;
-    }
-
-    .post-action {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px;
-      background: none;
-      border: none;
-      border-radius: 6px;
-      color: #b0b3b8;
-      cursor: pointer;
-      transition: background-color 0.2s;
-      font-weight: 600;
-      flex: 1;
-      justify-content: center;
-    }
-
-    .post-action:hover {
-      background-color: #3a3b3c;
-    }
-
-    .post-action.liked {
-      color: #1877f2;
-    }
-
-    /* Right Sidebar */
-    .right-sidebar {
-      width: 280px;
-      position: sticky;
-      top: 80px;
-      height: calc(100vh - 80px);
-      overflow-y: auto;
-    }
-
-    .sidebar-section {
-      margin-bottom: 20px;
-    }
-
-    .sidebar-title {
-      font-weight: 600;
-      color: #b0b3b8;
-      margin-bottom: 12px;
-      font-size: 17px;
-    }
-
-    .trending-item {
-      display: flex;
-      align-items: center;
-      padding: 8px;
-      border-radius: 8px;
-      margin-bottom: 4px;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-
-    .trending-item:hover {
-      background-color: #3a3b3c;
-    }
-
-    .trending-hash {
-      color: #1877f2;
-      font-weight: 600;
-      margin-right: 8px;
-    }
-
-    .suggested-user {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 8px;
-      border-radius: 8px;
-      margin-bottom: 8px;
-      transition: background-color 0.2s;
-    }
-
-    .suggested-user:hover {
-      background-color: #3a3b3c;
-    }
-
-    .suggested-info {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .suggested-name {
-      font-weight: 600;
-      color: #e4e6ea;
-    }
-
-    .suggested-field {
-      color: #b0b3b8;
-      font-size: 13px;
-    }
-
-    .follow-btn {
-      background-color: #1877f2;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 6px 16px;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 13px;
-    }
-
-    .follow-btn:hover {
-      background-color: #166fe5;
-    }
-
-    /* Utility */
-    .hidden {
-      display: none !important;
-    }
-
-    /* Success notification */
-    .notification {
-      position: fixed;
-      top: 80px;
-      right: 20px;
-      background-color: #1877f2;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-      z-index: 1500;
-      opacity: 0;
-      transform: translateX(100%);
-      transition: all 0.3s ease;
-    }
-
-    .notification.show {
-      opacity: 1;
-      transform: translateX(0);
-    }
-
-    .notification.error {
-      background-color: #e74c3c;
-    }
-
-    /* Status indicator */
-    .status {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-size: 13px;
-      font-weight: 600;
-      z-index: 1500;
-    }
-
-    .status.online {
-      background-color: rgba(46, 160, 67, 0.2);
-      color: #2ea043;
-      border: 1px solid #2ea043;
-    }
-
-    .status.offline {
-      background-color: rgba(244, 67, 54, 0.2);
-      color: #f44336;
-      border: 1px solid #f44336;
-    }
-
-    /* Responsive */
-    @media (max-width: 1024px) {
-      .left-sidebar,
-      .right-sidebar {
-        display: none;
-      }
-      
-      .main-feed {
-        max-width: none;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .search-bar {
-        display: none;
-      }
-      
-      .main-container {
-        padding: 20px 8px;
-      }
-      
-      .login-content {
-        width: 95%;
-        padding: 24px;
-      }
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DeepNet Social</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <!-- Login Modal -->
-  <div id="loginModal" class="login-modal">
-    <div class="login-content">
-      <button class="modal-close" onclick="closeModal()">&times;</button>
-      <div class="login-header">
-        <div class="login-logo">🧠 DeepNet Social</div>
-        <div class="login-subtitle">Connect with AI researchers worldwide</div>
+  <div id="loginModal" class="modal">
+    <div class="modal-content">
+      <h2>Welcome to DeepNet Social</h2>
+      <div>
+        <button onclick="switchAuthTab('login')" id="loginTab" class="active">Login</button>
+        <button onclick="switchAuthTab('signup')" id="signupTab">Sign Up</button>
       </div>
-      
-      <div class="auth-tabs">
-        <button class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
-        <button class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
-      </div>
-      
-      <form id="loginForm" class="auth-form">
-        <div class="form-group">
-          <input type="email" class="form-input" name="email" placeholder="Email address" required>
-        </div>
-        <div class="form-group">
-          <input type="password" class="form-input" name="password" placeholder="Password" required>
-        </div>
-        <button type="submit" class="auth-btn">Log In</button>
-        <div id="loginMessage" class="auth-message"></div>
+      <form id="loginForm">
+        <input type="email" id="loginEmail" placeholder="Email" required />
+        <input type="password" id="loginPassword" placeholder="Password" required />
+        <button type="submit">Login</button>
+        <p id="loginMessage"></p>
       </form>
-      
-      <form id="signupForm" class="auth-form hidden">
-        <div class="form-group">
-          <input type="email" class="form-input" name="email" placeholder="Email address" required>
-        </div>
-        <div class="form-group">
-          <input type="password" class="form-input" name="password" placeholder="Create password" minlength="6" required>
-        </div>
-        <button type="submit" class="auth-btn">Sign Up</button>
-        <div id="signupMessage" class="auth-message"></div>
+      <form id="signupForm" class="hidden">
+        <input type="email" id="signupEmail" placeholder="Email" required />
+        <input type="password" id="signupPassword" placeholder="Password" required />
+        <button type="submit">Sign Up</button>
+        <p id="signupMessage"></p>
       </form>
     </div>
   </div>
 
-  <!-- Notification -->
-  <div id="notification" class="notification"></div>
-  
-  <!-- Status Indicator -->
-  <div id="status" class="status offline">🔄 Connecting...</div>
-
-  <!-- Main App -->
+  <!-- App -->
   <div id="app" class="hidden">
-    <!-- Header -->
-    <header class="header">
-      <div class="header-content">
-        <a href="#" class="logo">
-          <span>🧠</span>
-          DeepNet Social
-        </a>
-        
-        <div class="search-bar">
-          <input type="text" class="search-input" placeholder="Search DeepNet Social">
-        </div>
-        
-        <nav class="header-nav">
-          <a href="#" class="nav-item active">Home</a>
-          <a href="#" class="nav-item">Research</a>
-          <a href="#" class="nav-item">Communities</a>
-          <a href="#" class="nav-item">Messages</a>
-        </nav>
-        
-        <div class="header-actions">
-          <button class="icon-btn">🔔</button>
-          <button class="icon-btn">💬</button>
-          <img id="userAvatar" src="https://i.pravatar.cc/40?u=guest" class="user-avatar" alt="User Avatar">
-          <button class="logout-btn" onclick="logoutUser()">Logout</button>
-        </div>
-      </div>
+    <header>
+      <h1>DeepNet Social</h1>
+      <button onclick="logoutUser()">Logout</button>
     </header>
 
-    <!-- Main Container -->
-    <div class="main-container">
-      <!-- Left Sidebar -->
-      <aside class="left-sidebar">
-        <a href="#" class="sidebar-item">
-          <img id="sidebarAvatar" src="https://i.pravatar.cc/40?u=guest" class="sidebar-icon" style="border-radius: 50%;" alt="Profile">
-          <span class="sidebar-text" id="profileName">Your Profile</span>
-        </a>
-        <a href="#" class="sidebar-item">
-          <div class="sidebar-icon">👥</div>
-          <span class="sidebar-text">AI Communities</span>
-        </a>
-        <a href="#" class="sidebar-item">
-          <div class="sidebar-icon">📊</div>
-          <span class="sidebar-text">Research Analytics</span>
-        </a>
-        <a href="#" class="sidebar-item">
-          <div class="sidebar-icon">📚</div>
-          <span class="sidebar-text">Papers & Publications</span>
-        </a>
-        <a href="#" class="sidebar-item">
-          <div class="sidebar-icon">🔖</div>
-          <span class="sidebar-text">Saved Posts</span>
-        </a>
-        <a href="#" class="sidebar-item">
-          <div class="sidebar-icon">⚙️</div>
-          <span class="sidebar-text">Settings</span>
-        </a>
-      </aside>
-
-      <!-- Main Feed -->
-      <main class="main-feed">
-        <!-- Post Composer -->
-        <div class="card post-composer">
-          <div class="composer-header">
-            <img id="composerAvatar" src="https://i.pravatar.cc/40?u=guest" class="user-avatar" alt="Your Avatar">
-            <textarea class="composer-input" id="postInput" placeholder="Share your research insights with the AI community..." rows="3"></textarea>
-          </div>
-          <div class="composer-tools">
-            <div class="composer-options">
-              <button class="composer-btn">📝 Text</button>
-              <button class="composer-btn">💻 Code</button>
-              <button class="composer-btn">📄 Paper</button>
-              <button class="composer-btn">📊 Poll</button>
-            </div>
-            <button class="post-btn" id="postButton" onclick="createPost()">Post</button>
-          </div>
-        </div>
-
-        <!-- Posts Container -->
-        <div id="postsContainer">
-          <!-- Posts will be loaded here -->
-        </div>
-      </main>
-
-      <!-- Right Sidebar -->
-      <aside class="right-sidebar">
-        <div class="sidebar-section">
-          <h3 class="sidebar-title">Trending in AI</h3>
-          <div class="trending-item">
-            <span class="trending-hash">#</span>
-            <span>MachineLearning</span>
-          </div>
-          <div class="trending-item">
-            <span class="trending-hash">#</span>
-            <span>NeurIPS2025</span>
-          </div>
-          <div class="trending-item">
-            <span class="trending-hash">#</span>
-            <span>ComputerVision</span>
-          </div>
-          <div class="trending-item">
-            <span class="trending-hash">#</span>
-            <span>NLP</span>
-          </div>
-          <div class="trending-item">
-            <span class="trending-hash">#</span>
-            <span>DeepLearning</span>
-          </div>
-        </div>
-
-        <div class="sidebar-section">
-          <h3 class="sidebar-title">Suggested Connections</h3>
-          <div class="suggested-user">
-            <div class="suggested-info">
-              <img src="https://i.pravatar.cc/40?u=john" class="user-avatar" alt="Dr. John Smith">
-              <div>
-                <div class="suggested-name">Dr. John Smith</div>
-                <div class="suggested-field">Computer Vision</div>
-              </div>
-            </div>
-            <button class="follow-btn">Follow</button>
-          </div>
-          <div class="suggested-user">
-            <div class="suggested-info">
-              <img src="https://i.pravatar.cc/40?u=lisa" class="user-avatar" alt="Prof. Lisa Wang">
-              <div>
-                <div class="suggested-name">Prof. Lisa Wang</div>
-                <div class="suggested-field">NLP Research</div>
-              </div>
-            </div>
-            <button class="follow-btn">Follow</button>
-          </div>
-        </div>
-
-        <div class="sidebar-section">
-          <h3 class="sidebar-title">Upcoming Events</h3>
-          <div class="trending-item">
-            <div>
-              <div style="font-weight: 600;">NeurIPS 2025</div>
-              <div style="color: #b0b3b8; font-size: 13px;">Dec 10-16, Vancouver</div>
-            </div>
-          </div>
-        </div>
-      </aside>
+    <!-- Post composer -->
+    <div class="post-composer">
+      <textarea id="postContent" placeholder="Share your thoughts..."></textarea>
+      <button onclick="createPost()">Post</button>
     </div>
+
+    <!-- Posts -->
+    <div id="postsContainer"></div>
   </div>
 
-  <!-- Firebase Auth + Enhanced Local Storage with Sync -->
-  <script type="module">
-    // Import Firebase Auth only
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { 
-      getAuth, 
-      createUserWithEmailAndPassword, 
-      signInWithEmailAndPassword, 
-      onAuthStateChanged, 
-      signOut 
-    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-    // Firebase configuration
+  <script>
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyBytov9p2TGFudvnwQZ1hSi5f9oXaSKDAQ",
       authDomain: "deepnet-social-backend.firebaseapp.com",
@@ -911,428 +64,128 @@
       measurementId: "G-B1ENWRY6JK"
     };
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    
-    // UI Elements
-    const loginModal = document.getElementById('loginModal');
-    const appDiv = document.getElementById('app');
-    const userAvatar = document.getElementById('userAvatar');
-    const sidebarAvatar = document.getElementById('sidebarAvatar');
-    const composerAvatar = document.getElementById('composerAvatar');
-    const profileName = document.getElementById('profileName');
-    const notification = document.getElementById('notification');
-    const status = document.getElementById('status');
-    const postsContainer = document.getElementById('postsContainer');
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-    // Show notification function
-    function showNotification(message, type = 'success') {
-      notification.textContent = message;
-      notification.className = `notification ${type}`;
-      notification.classList.add('show');
-      
-      setTimeout(() => {
-        notification.classList.remove('show');
-      }, 3000);
+    // 🔹 UI Functions
+    function switchAuthTab(tab) {
+      document.getElementById("loginForm").classList.toggle("hidden", tab !== "login");
+      document.getElementById("signupForm").classList.toggle("hidden", tab !== "signup");
+      document.getElementById("loginTab").classList.toggle("active", tab === "login");
+      document.getElementById("signupTab").classList.toggle("active", tab === "signup");
     }
+    function closeLoginModal(){ document.getElementById("loginModal").style.display="none";}
+    function openLoginModal(){ document.getElementById("loginModal").style.display="block";}
+    function showApp(){ document.getElementById("app").classList.remove("hidden"); closeLoginModal();}
+    function logoutUser(){ auth.signOut(); }
 
-    // Update status indicator
-    function updateStatus(message, type = 'online') {
-      status.textContent = message;
-      status.className = `status ${type}`;
-    }
-
-    // Enhanced local storage with better data persistence
-    const STORAGE_KEY = 'deepnet_posts_v2';
-    
-    function savePosts(posts) {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
-        return true;
-      } catch (error) {
-        console.error('Error saving posts:', error);
-        return false;
-      }
-    }
-
-    function loadPosts() {
-      try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        return saved ? JSON.parse(saved) : [];
-      } catch (error) {
-        console.error('Error loading posts:', error);
-        return [];
-      }
-    }
-
-    // Format time function
-    function formatTime(dateString) {
-      const date = new Date(dateString);
-      const now = new Date();
-      const diff = now - date;
-      
-      if (diff < 60000) return 'Just now';
-      if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
-      if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
-      if (diff < 604800000) return `${Math.floor(diff / 86400000)}d ago`;
-      
-      return date.toLocaleDateString();
-    }
-
-    function displayPosts() {
-      const posts = loadPosts();
-      postsContainer.innerHTML = '';
-      
-      if (posts.length === 0) {
-        postsContainer.innerHTML = `
-          <div class="card" style="text-align: center; padding: 40px;">
-            <h3 style="color: #8b949e; margin-bottom: 8px;">Welcome to DeepNet Social! 🎉</h3>
-            <p style="color: #8b949e; font-size: 14px;">Share your research insights and connect with the AI community!</p>
-          </div>
-        `;
-        updateStatus('📚 Ready to post', 'online');
-        return;
-      }
-
-      posts.forEach(post => {
-        const postElement = createPostElement(post);
-        postsContainer.appendChild(postElement);
+    // 🔹 Authentication
+    document.getElementById("signupForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const email = document.getElementById("signupEmail").value;
+      const password = document.getElementById("signupPassword").value;
+      auth.createUserWithEmailAndPassword(email,password).catch(err=>{
+        document.getElementById("signupMessage").textContent=err.message;
       });
-      
-      updateStatus(`📡 Online • ${posts.length} posts loaded`, 'online');
+    });
+    document.getElementById("loginForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
+      auth.signInWithEmailAndPassword(email,password).catch(err=>{
+        document.getElementById("loginMessage").textContent=err.message;
+      });
+    });
+    auth.onAuthStateChanged(user=>{
+      if(user){ showApp(); listenPosts(); }
+      else{ document.getElementById("app").classList.add("hidden"); openLoginModal();}
+    });
+
+    // 🔹 Create Post (Firestore)
+    async function createPost(){
+      const user = auth.currentUser;
+      if(!user) return alert("Login first!");
+      const content = document.getElementById("postContent").value.trim();
+      if(!content) return;
+      await db.collection("posts").add({
+        content,
+        authorId: user.uid,
+        authorName: user.email.split("@")[0],
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        likes: 0,
+        likedBy: [],
+        comments: []
+      });
+      document.getElementById("postContent").value="";
     }
 
-    function createPostElement(post) {
-      const postDiv = document.createElement('div');
-      postDiv.className = 'card post';
-      postDiv.dataset.postId = post.id;
-      
-      const isLiked = post.likedBy && post.likedBy.includes(auth.currentUser?.uid);
-      
-      postDiv.innerHTML = `
-        <div class="post-header">
-          <div class="post-author-info">
-            <img src="${post.authorAvatar}" class="user-avatar" alt="${post.authorName}" onerror="this.src='https://i.pravatar.cc/40?u=default'">
-            <div>
-              <div class="post-author">${post.authorName}</div>
-              <div class="post-time">${formatTime(post.createdAt)}</div>
-            </div>
-          </div>
-          <button class="post-menu" onclick="postMenu('${post.id}')">⋯</button>
-        </div>
-        <div class="post-content">${post.content.replace(/\n/g, '<br>')}</div>
-        <div class="post-stats">
-          <span>${post.likes || 0} reactions • ${post.comments || 0} comments</span>
-          <span>0 shares</span>
-        </div>
-        <div class="post-actions">
-          <button class="post-action ${isLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}')">
-            <span>👍</span>
-            <span>Like</span>
-          </button>
-          <button class="post-action" onclick="addComment('${post.id}')">
-            <span>💬</span>
-            <span>Comment</span>
-          </button>
-          <button class="post-action" onclick="sharePost('${post.id}')">
-            <span>↗️</span>
-            <span>Share</span>
-          </button>
+    // 🔹 Listen to Posts in Real Time
+    function listenPosts(){
+      db.collection("posts").orderBy("createdAt","desc").onSnapshot(snapshot=>{
+        const container=document.getElementById("postsContainer");
+        container.innerHTML="";
+        snapshot.forEach(doc=>{
+          const post=doc.data();
+          post.id=doc.id;
+          container.appendChild(createPostElement(post));
+        });
+      });
+    }
+
+    // 🔹 Render Post
+    function createPostElement(post){
+      const div=document.createElement("div");
+      div.className="post";
+      const time=post.createdAt?.toDate().toLocaleString()||"just now";
+      div.innerHTML=`
+        <p><strong>${post.authorName}</strong> <small>${time}</small></p>
+        <p>${post.content}</p>
+        <button onclick="toggleLike('${post.id}')">👍 ${post.likes||0}</button>
+        <div class="comments">
+          ${(post.comments||[]).map((c,i)=>`<p><b>${c.author}</b>: ${c.text}</p>`).join("")}
+          <input type="text" id="cmt-${post.id}" placeholder="Write a comment..."/>
+          <button onclick="addComment('${post.id}')">Comment</button>
         </div>
       `;
-      
-      return postDiv;
+      return div;
     }
 
-    // Make functions globally available
-    window.switchAuthTab = function(tab) {
-      const loginForm = document.getElementById('loginForm');
-      const signupForm = document.getElementById('signupForm');
-      const tabs = document.querySelectorAll('.auth-tab');
-      
-      tabs.forEach(t => t.classList.remove('active'));
-      
-      if (tab === 'login') {
-        loginForm.classList.remove('hidden');
-        signupForm.classList.add('hidden');
-        tabs[0].classList.add('active');
+    // 🔹 Like Post
+    async function toggleLike(postId){
+      const user=auth.currentUser;
+      if(!user) return alert("Login first!");
+      const ref=db.collection("posts").doc(postId);
+      const snap=await ref.get();
+      if(!snap.exists) return;
+      const data=snap.data();
+      let likedBy=data.likedBy||[];
+      if(likedBy.includes(user.uid)){
+        likedBy=likedBy.filter(id=>id!==user.uid);
       } else {
-        loginForm.classList.add('hidden');
-        signupForm.classList.remove('hidden');
-        tabs[1].classList.add('active');
+        likedBy.push(user.uid);
       }
-    };
-
-    window.closeModal = function() {
-      loginModal.classList.add('hidden');
-    };
-
-    window.logoutUser = async function() {
-      try {
-        await signOut(auth);
-        showNotification('Logged out successfully!');
-      } catch (error) {
-        showNotification('Logout failed: ' + error.message, 'error');
-      }
-    };
-
-    // Enhanced createPost function
-    window.createPost = function() {
-      const postInput = document.getElementById('postInput');
-      const postButton = document.getElementById('postButton');
-      const content = postInput.value.trim();
-      
-      if (!content) {
-        showNotification('Please enter some content for your post!', 'error');
-        return;
-      }
-
-      if (!auth.currentUser) {
-        showNotification('Please log in to create a post!', 'error');
-        return;
-      }
-
-      // Disable button temporarily
-      postButton.disabled = true;
-      postButton.textContent = 'Posting...';
-
-      try {
-        const user = auth.currentUser;
-        const avatarUrl = user.photoURL || `https://i.pravatar.cc/40?u=${user.uid}`;
-        const userName = user.displayName || user.email.split('@')[0];
-        
-        const newPost = {
-          id: Date.now().toString(),
-          content: content,
-          authorId: user.uid,
-          authorName: userName,
-          authorEmail: user.email,
-          authorAvatar: avatarUrl,
-          createdAt: new Date().toISOString(),
-          likes: 0,
-          comments: 0,
-          likedBy: []
-        };
-        
-        // Save to local storage
-        const posts = loadPosts();
-        posts.unshift(newPost);
-        
-        if (savePosts(posts)) {
-          // Update display
-          displayPosts();
-          
-          // Clear input and show success
-          postInput.value = '';
-          showNotification('Post created successfully! 🎉');
-          
-          // Future: Try to sync with MongoDB database here
-          tryMongoDBSync(newPost);
-        } else {
-          throw new Error('Failed to save post to local storage');
-        }
-        
-      } catch (error) {
-        console.error('Error creating post:', error);
-        showNotification('Failed to create post: ' + error.message, 'error');
-      } finally {
-        // Re-enable button
-        postButton.disabled = false;
-        postButton.textContent = 'Post';
-      }
-    };
-
-    // Future MongoDB sync function (placeholder)
-    async function tryMongoDBSync(post) {
-      // This will attempt to sync with your MongoDB database
-      // once the IAM permissions are set up properly
-      try {
-        const user = auth.currentUser;
-        if (!user) return;
-        
-        const idToken = await user.getIdToken();
-        
-        // Attempt to save to MongoDB Firestore
-        const response = await fetch(`https://firestore.googleapis.com/v1/projects/deepnet-social-backend/databases/(default)/documents/posts`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${idToken}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            fields: {
-              content: { stringValue: post.content },
-              authorId: { stringValue: post.authorId },
-              authorName: { stringValue: post.authorName },
-              authorEmail: { stringValue: post.authorEmail },
-              authorAvatar: { stringValue: post.authorAvatar },
-              createdAt: { timestampValue: post.createdAt },
-              likes: { integerValue: '0' },
-              comments: { integerValue: '0' },
-              likedBy: { arrayValue: { values: [] } }
-            }
-          })
-        });
-        
-        if (response.ok) {
-          console.log('✅ Post synced to MongoDB Firestore');
-          updateStatus('📡 Online • Synced to database', 'online');
-        } else {
-          console.log('⚠️ MongoDB sync failed, using local storage only');
-        }
-      } catch (error) {
-        console.log('⚠️ MongoDB sync not available, using local storage');
-      }
+      await ref.update({ likedBy, likes: likedBy.length });
     }
 
-    // Post interaction functions
-    window.toggleLike = function(postId) {
-      if (!auth.currentUser) {
-        showNotification('Please log in to like posts!', 'error');
-        return;
-      }
-
-      const posts = loadPosts();
-      const post = posts.find(p => p.id === postId);
-      
-      if (post) {
-        const userId = auth.currentUser.uid;
-        
-        if (!post.likedBy) post.likedBy = [];
-        
-        if (post.likedBy.includes(userId)) {
-          // Unlike
-          post.likedBy = post.likedBy.filter(id => id !== userId);
-          post.likes = Math.max(0, (post.likes || 0) - 1);
-          showNotification('Post unliked');
-        } else {
-          // Like
-          post.likedBy.push(userId);
-          post.likes = (post.likes || 0) + 1;
-          showNotification('Post liked! 👍');
-        }
-        
-        savePosts(posts);
-        displayPosts();
-      }
-    };
-
-    window.addComment = function(postId) {
-      const comment = prompt('Enter your comment:');
-      if (comment && comment.trim()) {
-        showNotification('Comment feature coming soon! 💬');
-      }
-    };
-
-    window.sharePost = function(postId) {
-      showNotification('Post shared! 🔄');
-    };
-
-    window.postMenu = function(postId) {
-      if (confirm('Delete this post?')) {
-        const posts = loadPosts();
-        const filteredPosts = posts.filter(p => p.id !== postId);
-        savePosts(filteredPosts);
-        displayPosts();
-        showNotification('Post deleted!');
-      }
-    };
-
-    // Close modal when clicking outside
-    loginModal.addEventListener('click', function(e) {
-      if (e.target === loginModal) {
-        closeModal();
-      }
-    });
-
-    // Enable Enter key to post (Ctrl+Enter)
-    document.getElementById('postInput').addEventListener('keydown', function(e) {
-      if (e.ctrlKey && e.key === 'Enter') {
-        createPost();
-      }
-    });
-
-    // Authentication handlers
-    document.getElementById('signupForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = e.target.email.value;
-      const password = e.target.password.value;
-      const messageEl = document.getElementById('signupMessage');
-      
-      try {
-        await createUserWithEmailAndPassword(auth, email, password);
-        messageEl.className = 'auth-message success';
-        messageEl.textContent = '✅ Account created successfully!';
-        e.target.reset();
-        setTimeout(() => {
-          loginModal.classList.add('hidden');
-        }, 1000);
-      } catch (error) {
-        messageEl.className = 'auth-message error';
-        messageEl.textContent = `❌ ${error.message}`;
-      }
-    });
-
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = e.target.email.value;
-      const password = e.target.password.value;
-      const messageEl = document.getElementById('loginMessage');
-      
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        messageEl.className = 'auth-message success';
-        messageEl.textContent = '✅ Login successful!';
-        e.target.reset();
-        setTimeout(() => {
-          loginModal.classList.add('hidden');
-        }, 1000);
-      } catch (error) {
-        messageEl.className = 'auth-message error';
-        messageEl.textContent = `❌ ${error.message}`;
-      }
-    });
-
-    // Auth state listener
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // User logged in
-        loginModal.classList.add('hidden');
-        appDiv.classList.remove('hidden');
-        
-        const avatarUrl = user.photoURL || `https://i.pravatar.cc/40?u=${user.uid}`;
-        const userName = user.displayName || user.email.split('@')[0];
-        
-        userAvatar.src = avatarUrl;
-        sidebarAvatar.src = avatarUrl;
-        composerAvatar.src = avatarUrl;
-        profileName.textContent = userName;
-        
-        // Load posts
-        displayPosts();
-        
-        console.log('User logged in:', user.email);
-      } else {
-        // User logged out
-        loginModal.classList.remove('hidden');
-        appDiv.classList.add('hidden');
-        
-        const guestAvatar = 'https://i.pravatar.cc/40?u=guest';
-        userAvatar.src = guestAvatar;
-        sidebarAvatar.src = guestAvatar;
-        composerAvatar.src = guestAvatar;
-        profileName.textContent = 'Your Profile';
-        
-        updateStatus('🔄 Please log in', 'offline');
-        
-        console.log('User logged out');
-      }
-    });
-
-    // Initialize
-    updateStatus('🔄 Initializing...', 'offline');
-    console.log('🧠 DeepNet Social - Enhanced version with MongoDB sync preparation loaded!');
+    // 🔹 Add Comment
+    async function addComment(postId){
+      const user=auth.currentUser;
+      if(!user) return alert("Login first!");
+      const input=document.getElementById("cmt-"+postId);
+      const text=input.value.trim();
+      if(!text) return;
+      const ref=db.collection("posts").doc(postId);
+      await ref.update({
+        comments: firebase.firestore.FieldValue.arrayUnion({
+          userId:user.uid,
+          author:user.email.split("@")[0],
+          text,
+          createdAt:new Date().toISOString()
+        })
+      });
+      input.value="";
+    }
   </script>
 </body>
 </html>
