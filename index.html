@@ -966,17 +966,16 @@
     </div>
   </div>
 
-  <!-- Firebase Auth + Enhanced Local Storage with Comments + EMAIL VERIFICATION -->
+  <!-- Firebase Auth + Enhanced Local Storage with Comments -->
   <script type="module">
-    // Import Firebase Auth WITH EMAIL VERIFICATION
+    // Import Firebase Auth
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { 
       getAuth, 
       createUserWithEmailAndPassword, 
       signInWithEmailAndPassword, 
       onAuthStateChanged, 
-      signOut,
-      sendEmailVerification
+      signOut 
     } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
     // Firebase configuration
@@ -1190,8 +1189,8 @@
         return;
       }
 
-      if (!auth.currentUser || !auth.currentUser.emailVerified) {
-        showNotification('Please log in with a verified email to create posts!', 'error');
+      if (!auth.currentUser) {
+        showNotification('Please log in to create a post!', 'error');
         return;
       }
 
@@ -1235,8 +1234,8 @@
     };
 
     window.toggleLike = function(postId) {
-      if (!auth.currentUser || !auth.currentUser.emailVerified) {
-        showNotification('Please log in with a verified email to like posts!', 'error');
+      if (!auth.currentUser) {
+        showNotification('Please log in to like posts!', 'error');
         return;
       }
 
@@ -1294,8 +1293,8 @@
     };
 
     window.addComment = function(postId) {
-      if (!auth.currentUser || !auth.currentUser.emailVerified) {
-        showNotification('Please log in with a verified email to comment!', 'error');
+      if (!auth.currentUser) {
+        showNotification('Please log in to comment!', 'error');
         return;
       }
 
@@ -1371,20 +1370,21 @@
       }
     });
 
-    // UPDATED Authentication handlers with EMAIL VERIFICATION
+    // Authentication handlers
     document.getElementById('signupForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = e.target.email.value.trim();
-      const password = e.target.password.value.trim();
+      const email = e.target.email.value;
+      const password = e.target.password.value;
       const messageEl = document.getElementById('signupMessage');
       
       try {
-        const cred = await createUserWithEmailAndPassword(auth, email, password);
-        await sendEmailVerification(cred.user);
+        await createUserWithEmailAndPassword(auth, email, password);
         messageEl.className = 'auth-message success';
-        messageEl.innerHTML = '✅ Account created! Verification link sent to your email. Please verify and then log in.';
-        await signOut(auth); // Sign out to prevent unverified access
+        messageEl.textContent = '✅ Account created successfully!';
         e.target.reset();
+        setTimeout(() => {
+          loginModal.classList.add('hidden');
+        }, 1000);
       } catch (error) {
         messageEl.className = 'auth-message error';
         messageEl.textContent = `❌ ${error.message}`;
@@ -1393,53 +1393,28 @@
 
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = e.target.email.value.trim();
-      const password = e.target.password.value.trim();
+      const email = e.target.email.value;
+      const password = e.target.password.value;
       const messageEl = document.getElementById('loginMessage');
       
       try {
-        const cred = await signInWithEmailAndPassword(auth, email, password);
-
-        if (!cred.user.emailVerified) {
-          await signOut(auth);
-          messageEl.className = 'auth-message error';
-          messageEl.innerHTML = `
-            ❌ Email not verified. Check your inbox/spam for the verification email.
-            <br><br>
-            <button id="resendBtn" style="margin-top:8px; padding:8px 12px; border:none; border-radius:6px; background:#1877f2; color:#fff; cursor:pointer;">
-              Resend verification email
-            </button>
-          `;
-          const resendBtn = document.getElementById('resendBtn');
-          resendBtn.onclick = async () => {
-            try {
-              const temp = await signInWithEmailAndPassword(auth, email, password);
-              await sendEmailVerification(temp.user);
-              await signOut(auth);
-              showNotification('Verification email sent again. Please check your inbox.');
-            } catch (e2) {
-              showNotification('Unable to resend: ' + e2.message, 'error');
-            }
-          };
-          return;
-        }
-
+        await signInWithEmailAndPassword(auth, email, password);
         messageEl.className = 'auth-message success';
         messageEl.textContent = '✅ Login successful!';
         e.target.reset();
         setTimeout(() => {
           loginModal.classList.add('hidden');
-        }, 800);
+        }, 1000);
       } catch (error) {
         messageEl.className = 'auth-message error';
         messageEl.textContent = `❌ ${error.message}`;
       }
     });
 
-    // UPDATED Auth state listener - only verified users
+    // Auth state listener
     onAuthStateChanged(auth, (user) => {
-      if (user && user.emailVerified) {
-        // User logged in AND verified
+      if (user) {
+        // User logged in
         loginModal.classList.add('hidden');
         appDiv.classList.remove('hidden');
         
@@ -1452,11 +1427,11 @@
         profileName.textContent = userName;
         
         displayPosts();
-        updateStatus('✅ Logged in (verified)', 'online');
+        updateStatus('✅ Logged in', 'online');
         
         console.log('User logged in:', user.email);
       } else {
-        // User logged out OR not verified
+        // User logged out
         loginModal.classList.remove('hidden');
         appDiv.classList.add('hidden');
         
@@ -1466,15 +1441,15 @@
         composerAvatar.src = guestAvatar;
         profileName.textContent = 'Your Profile';
         
-        updateStatus('🔒 Email verification required', 'offline');
+        updateStatus('🔄 Please log in', 'offline');
         
-        console.log('User not verified or logged out');
+        console.log('User logged out');
       }
     });
 
     // Initialize
     updateStatus('🔄 Initializing...', 'offline');
-    console.log('🧠 DeepNet Social - Full featured with EMAIL VERIFICATION loaded!');
+    console.log('🧠 DeepNet Social - Enhanced version with working comments loaded!');
   </script>
 </body>
 </html>
