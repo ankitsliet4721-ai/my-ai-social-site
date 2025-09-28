@@ -1,658 +1,317 @@
-/* Reset and base styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  background-color: #0f1419;
-  color: #ffffff;
-  line-height: 1.6;
-}
-
-/* Modal styles */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: #1a1f29;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 400px;
-  padding: 0;
-}
-
-.modal-header {
-  padding: 24px 24px 16px;
-  border-bottom: 1px solid #2a3441;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.modal-header h2 {
-  font-size: 24px;
-  font-weight: 600;
-  color: #ffffff;
-}
-
-.modal-close {
-  background: none;
-  border: none;
-  font-size: 24px;
-  color: #8b949e;
-  cursor: pointer;
-  padding: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-}
-
-.modal-close:hover {
-  background-color: #2a3441;
-  color: #ffffff;
-}
-
-.modal-body {
-  padding: 24px;
-}
-
-/* Auth tabs */
-.auth-tabs {
-  display: flex;
-  margin-bottom: 24px;
-  border-radius: 8px;
-  background-color: #0d1117;
-  padding: 4px;
-}
-
-.auth-tab {
-  flex: 1;
-  background: none;
-  border: none;
-  padding: 12px 16px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #8b949e;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-}
-
-.auth-tab.active {
-  background-color: #238636;
-  color: #ffffff;
-}
-
-.auth-tab:hover:not(.active) {
-  background-color: #2a3441;
-  color: #ffffff;
-}
-
-/* Forms */
-.auth-form {
-  display: block;
-}
-
-.form-group {
-  margin-bottom: 16px;
-}
-
-.form-label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #f0f6fc;
-}
-
-.form-control {
-  width: 100%;
-  padding: 12px 16px;
-  background-color: #0d1117;
-  border: 1px solid #30363d;
-  border-radius: 6px;
-  font-size: 14px;
-  color: #f0f6fc;
-  transition: border-color 0.2s ease;
-}
-
-.form-control:focus {
-  outline: none;
-  border-color: #238636;
-  box-shadow: 0 0 0 3px rgba(35, 134, 54, 0.1);
-}
-
-.form-control::placeholder {
-  color: #8b949e;
-}
-
-/* Buttons */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 20px;
-  font-size: 14px;
-  font-weight: 500;
-  border-radius: 6px;
-  border: 1px solid transparent;
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.btn--primary {
-  background-color: #238636;
-  color: #ffffff;
-  border-color: #238636;
-}
-
-.btn--primary:hover {
-  background-color: #2ea043;
-  border-color: #2ea043;
-}
-
-.btn--full-width {
-  width: 100%;
-}
-
-.logout-btn {
-  background: #dc3545;
-  border: none;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.logout-btn:hover {
-  background: #c82333;
-}
-
-/* Utility classes */
-.hidden {
-  display: none !important;
-}
-
-/* Header */
-.header {
-  background-color: #161b22;
-  border-bottom: 1px solid #30363d;
-  padding: 0 16px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.header-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 64px;
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 18px;
-  font-weight: 600;
-  color: #58a6ff;
-}
-
-.logo-icon {
-  font-size: 24px;
-}
-
-.header-center {
-  flex: 1;
-  max-width: 400px;
-  margin: 0 24px;
-}
-
-.search-container {
-  position: relative;
-  display: flex;
-}
-
-.search-input {
-  flex: 1;
-  padding: 8px 16px;
-  background-color: #0d1117;
-  border: 1px solid #30363d;
-  border-radius: 6px 0 0 6px;
-  color: #f0f6fc;
-  font-size: 14px;
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: #238636;
-}
-
-.search-input::placeholder {
-  color: #8b949e;
-}
-
-.search-btn {
-  padding: 8px 12px;
-  background-color: #238636;
-  border: 1px solid #238636;
-  border-radius: 0 6px 6px 0;
-  color: #ffffff;
-  cursor: pointer;
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.nav {
-  display: flex;
-  gap: 16px;
-}
-
-.nav-link {
-  color: #8b949e;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  padding: 8px 12px;
-  border-radius: 6px;
-  transition: color 0.2s ease;
-}
-
-.nav-link:hover,
-.nav-link.active {
-  color: #58a6ff;
-}
-
-.theme-toggle {
-  background: none;
-  border: none;
-  color: #8b949e;
-  font-size: 16px;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 6px;
-  transition: color 0.2s ease;
-}
-
-.theme-toggle:hover {
-  color: #ffffff;
-}
-
-.user-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background-color: #238636;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-}
-
-/* Main content */
-#main-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px 16px;
-  display: grid;
-  grid-template-columns: 240px 1fr 280px;
-  gap: 24px;
-  min-height: calc(100vh - 64px);
-}
-
-/* Sidebars */
-.left-sidebar,
-.right-sidebar {
-  background-color: #161b22;
-  border-radius: 8px;
-  border: 1px solid #30363d;
-  height: fit-content;
-}
-
-.sidebar-menu {
-  list-style: none;
-  padding: 12px 0;
-}
-
-.sidebar-link {
-  display: block;
-  padding: 12px 16px;
-  color: #8b949e;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  transition: background-color 0.2s ease;
-}
-
-.sidebar-link:hover,
-.sidebar-link.active {
-  background-color: #0d1117;
-  color: #58a6ff;
-}
-
-.sidebar-card {
-  background-color: #161b22;
-  border-radius: 8px;
-  border: 1px solid #30363d;
-  margin-bottom: 16px;
-  padding: 16px;
-}
-
-.sidebar-card h3 {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 12px;
-  color: #ffffff;
-}
-
-/* Feed */
-.feed-container {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.card {
-  background-color: #161b22;
-  border: 1px solid #30363d;
-  border-radius: 8px;
-  padding: 16px;
-}
-
-.post-composer {
-  margin-bottom: 16px;
-}
-
-.composer-header {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.composer-input-container {
-  flex: 1;
-}
-
-.composer-input {
-  width: 100%;
-  min-height: 80px;
-  padding: 12px;
-  background-color: #0d1117;
-  border: 1px solid #30363d;
-  border-radius: 6px;
-  color: #f0f6fc;
-  font-size: 14px;
-  font-family: inherit;
-  resize: vertical;
-}
-
-.composer-input:focus {
-  outline: none;
-  border-color: #238636;
-}
-
-.composer-input::placeholder {
-  color: #8b949e;
-}
-
-.composer-tools {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 12px;
-}
-
-.composer-options {
-  display: flex;
-  gap: 8px;
-}
-
-.composer-btn {
-  padding: 6px 12px;
-  background: none;
-  border: 1px solid #30363d;
-  border-radius: 6px;
-  color: #8b949e;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.composer-btn:hover {
-  background-color: #0d1117;
-  color: #ffffff;
-}
-
-.composer-actions {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.privacy-select {
-  padding: 6px 12px;
-  background-color: #0d1117;
-  border: 1px solid #30363d;
-  border-radius: 6px;
-  color: #f0f6fc;
-  font-size: 12px;
-}
-
-/* Trending topics */
-.trending-topics {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.trending-topic {
-  color: #58a6ff;
-  font-size: 14px;
-  cursor: pointer;
-  padding: 4px 0;
-}
-
-.trending-topic:hover {
-  text-decoration: underline;
-}
-
-/* Suggested users */
-.suggested-users {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.suggested-user {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 0;
-  border-bottom: 1px solid #30363d;
-}
-
-.suggested-user:last-child {
-  border-bottom: none;
-}
-
-.suggested-user .user-avatar {
-  width: 24px;
-  height: 24px;
-  font-size: 12px;
-}
-
-.suggested-user-info {
-  flex: 1;
-}
-
-.suggested-user-name {
-  font-weight: 500;
-  font-size: 13px;
-  color: #ffffff;
-}
-
-.suggested-user-field {
-  color: #8b949e;
-  font-size: 11px;
-}
-
-.follow-btn {
-  padding: 4px 8px;
-  background: #238636;
-  border: none;
-  border-radius: 4px;
-  color: white;
-  font-size: 11px;
-  cursor: pointer;
-}
-
-.follow-btn:hover {
-  background: #2ea043;
-}
-
-/* Research highlights */
-.research-highlights {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.highlight-item {
-  padding: 12px;
-  background-color: #0d1117;
-  border-radius: 6px;
-  border: 1px solid #30363d;
-}
-
-.highlight-item h4 {
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 4px;
-  color: #ffffff;
-}
-
-.highlight-item p {
-  font-size: 12px;
-  color: #8b949e;
-}
-
-/* Posts */
-.post {
-  margin-bottom: 16px;
-}
-
-.post-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.post-author {
-  font-weight: 600;
-  font-size: 14px;
-  color: #ffffff;
-}
-
-.post-time {
-  color: #8b949e;
-  font-size: 12px;
-}
-
-.post-content {
-  margin-bottom: 16px;
-  line-height: 1.5;
-  color: #f0f6fc;
-}
-
-.post-actions {
-  display: flex;
-  gap: 16px;
-  color: #8b949e;
-  font-size: 14px;
-}
-
-.post-action {
-  background: none;
-  border: none;
-  color: inherit;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  transition: color 0.2s ease;
-}
-
-.post-action:hover {
-  color: #ffffff;
-}
-
-/* Responsive design */
-@media (max-width: 1024px) {
-  #main-content {
-    grid-template-columns: 200px 1fr 240px;
-    gap: 16px;
-  }
-}
-
-@media (max-width: 768px) {
-  #main-content {
-    grid-template-columns: 1fr;
-    gap: 16px;
-    padding: 16px;
-  }
-
-  .left-sidebar,
-  .right-sidebar {
-    display: none;
-  }
-
-  .header-center {
-    margin: 0 12px;
-  }
-
-  .nav {
-    display: none;
-  }
-
-  .modal-content {
-    width: 95%;
-    margin: 16px;
-  }
-
-  .header-content {
-    flex-wrap: wrap;
-    height: auto;
-    padding: 8px 0;
-  }
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DeepNet Social</title>
+  <style>
+    /* === YOUR DARK THEME CSS (merged) === */
+    /* Reset & base */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: #0f1419; color: #ffffff; line-height: 1.6;
+    }
+    .hidden { display: none !important; }
+
+    /* Header */
+    .header {
+      background-color: #161b22; border-bottom: 1px solid #30363d;
+      padding: 0 16px; position: sticky; top: 0; z-index: 100;
+    }
+    .header-content {
+      max-width: 1200px; margin: 0 auto; display: flex;
+      align-items: center; justify-content: space-between; height: 64px;
+    }
+    .logo { font-size: 18px; font-weight: 600; color: #58a6ff; display: flex; align-items: center; gap: 8px; }
+    .logout-btn {
+      background: #dc3545; border: none; color: white;
+      padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;
+    }
+    .logout-btn:hover { background: #c82333; }
+
+    /* Feed */
+    #main-content {
+      max-width: 700px; margin: 24px auto; padding: 0 16px;
+    }
+    .card {
+      background-color: #161b22; border: 1px solid #30363d;
+      border-radius: 8px; padding: 16px; margin-bottom: 16px;
+    }
+    .post-composer textarea {
+      width: 100%; min-height: 80px; padding: 12px;
+      background-color: #0d1117; border: 1px solid #30363d;
+      border-radius: 6px; color: #f0f6fc; font-size: 14px; resize: vertical;
+    }
+    .composer-actions { display: flex; justify-content: flex-end; margin-top: 8px; }
+    .post-btn {
+      background-color: #238636; border: none; padding: 8px 16px;
+      color: #fff; border-radius: 6px; cursor: pointer; font-weight: 600;
+    }
+    .post-btn:hover { background-color: #2ea043; }
+
+    /* Posts */
+    .post-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .post-author { font-weight: 600; font-size: 14px; color: #ffffff; }
+    .post-time { color: #8b949e; font-size: 12px; }
+    .post-content { margin-bottom: 12px; line-height: 1.5; color: #f0f6fc; }
+    .post-actions { display: flex; gap: 16px; color: #8b949e; font-size: 14px; }
+    .post-action {
+      background: none; border: none; color: inherit; cursor: pointer;
+      display: flex; align-items: center; gap: 4px; transition: color 0.2s ease;
+    }
+    .post-action:hover { color: #ffffff; }
+    .post-action.liked { color: #58a6ff; font-weight: 600; }
+
+    /* Modal */
+    .modal {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center;
+    }
+    .modal-content {
+      background: #1a1f29; border-radius: 12px; width: 90%; max-width: 400px; padding: 24px;
+    }
+    .form-control {
+      width: 100%; padding: 12px 16px; background-color: #0d1117;
+      border: 1px solid #30363d; border-radius: 6px; color: #f0f6fc; margin-bottom: 12px;
+    }
+    .btn--primary {
+      background-color: #238636; color: #fff; border: none;
+      padding: 12px; width: 100%; border-radius: 6px; cursor: pointer;
+    }
+
+    /* Comments */
+    .comments { margin-top: 12px; border-top: 1px solid #3e4042; padding-top: 10px; }
+    .comment-item { display: flex; gap: 8px; margin-bottom: 8px; }
+    .comment-avatar {
+      width: 28px; height: 28px; border-radius: 50%; object-fit: cover;
+      background: #238636; display: flex; align-items: center; justify-content: center; font-size: 12px;
+    }
+    .comment-body {
+      background: #202223; padding: 8px 10px; border-radius: 10px;
+      max-width: 100%; font-size: 14px;
+    }
+    .comment-meta { color: #9aa0a6; font-size: 12px; margin-top: 4px; }
+    .comment-form { display: flex; gap: 8px; margin-top: 8px; }
+    .comment-input {
+      flex: 1; background: #2b2d2f; border: 1px solid #3e4042;
+      color: #e4e6ea; border-radius: 16px; padding: 8px 12px; font-size: 14px;
+    }
+    .comment-btn {
+      background: #1877f2; border: none; color: #fff;
+      padding: 8px 12px; border-radius: 12px; cursor: pointer; font-weight: 600;
+    }
+    .delete-comment {
+      background: transparent; border: none; color: #9aa0a6; cursor: pointer;
+      font-size: 12px; margin-left: 8px;
+    }
+    .delete-comment:hover { color: #e74c3c; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">🧠 DeepNet Social</div>
+      <button id="logoutBtn" class="logout-btn hidden">Logout</button>
+    </div>
+  </header>
+
+  <!-- Auth Modal -->
+  <div id="authModal" class="modal">
+    <div class="modal-content">
+      <h2 id="authTitle">Login</h2>
+      <input type="email" id="authEmail" class="form-control" placeholder="Email">
+      <input type="password" id="authPassword" class="form-control" placeholder="Password">
+      <button id="authAction" class="btn--primary">Login</button>
+      <p style="margin-top:10px;"><a href="#" id="toggleAuth">Don’t have an account? Sign up</a></p>
+      <div id="authMessage" style="color:red;font-size:14px;margin-top:6px;"></div>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <main id="main-content" class="hidden">
+    <div class="card post-composer">
+      <textarea id="postInput" placeholder="What's on your mind?"></textarea>
+      <div class="composer-actions">
+        <button id="postButton" class="post-btn">Post</button>
+      </div>
+    </div>
+    <div id="postsContainer"></div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import {
+      getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+      signOut, onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import {
+      getFirestore, collection, addDoc, serverTimestamp,
+      query, orderBy, onSnapshot, updateDoc, doc, arrayUnion, arrayRemove
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBytov9p2TGFudvnwQZ1hSi5f9oXaSKDAQ",
+      authDomain: "deepnet-social-backend.firebaseapp.com",
+      projectId: "deepnet-social-backend",
+      storageBucket: "deepnet-social-backend.appspot.com",
+      messagingSenderId: "689173633913",
+      appId: "1:689173633913:web:b5290dc64ea8fd2b2f2da8",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // DOM
+    const authModal = document.getElementById("authModal");
+    const authTitle = document.getElementById("authTitle");
+    const authEmail = document.getElementById("authEmail");
+    const authPassword = document.getElementById("authPassword");
+    const authAction = document.getElementById("authAction");
+    const toggleAuth = document.getElementById("toggleAuth");
+    const authMessage = document.getElementById("authMessage");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const postInput = document.getElementById("postInput");
+    const postButton = document.getElementById("postButton");
+    const postsContainer = document.getElementById("postsContainer");
+    const mainContent = document.getElementById("main-content");
+
+    let isLogin = true;
+
+    // Toggle Login/Signup
+    toggleAuth.addEventListener("click", (e) => {
+      e.preventDefault();
+      isLogin = !isLogin;
+      authTitle.textContent = isLogin ? "Login" : "Sign Up";
+      authAction.textContent = isLogin ? "Login" : "Sign Up";
+      toggleAuth.textContent = isLogin ? "Don’t have an account? Sign up" : "Already have an account? Login";
+      authMessage.textContent = "";
+    });
+
+    // Auth action
+    authAction.addEventListener("click", async () => {
+      const email = authEmail.value, password = authPassword.value;
+      try {
+        if (isLogin) {
+          await signInWithEmailAndPassword(auth, email, password);
+        } else {
+          await createUserWithEmailAndPassword(auth, email, password);
+        }
+      } catch (err) { authMessage.textContent = err.message; }
+    });
+
+    logoutBtn.addEventListener("click", () => signOut(auth));
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        authModal.classList.add("hidden");
+        mainContent.classList.remove("hidden");
+        logoutBtn.classList.remove("hidden");
+        loadPosts();
+      } else {
+        authModal.classList.remove("hidden");
+        mainContent.classList.add("hidden");
+        logoutBtn.classList.add("hidden");
+      }
+    });
+
+    // Create post
+    postButton.addEventListener("click", async () => {
+      const content = postInput.value.trim();
+      if (!content) return;
+      const user = auth.currentUser;
+      await addDoc(collection(db, "posts"), {
+        content, author: user.email, createdAt: serverTimestamp(),
+        likes: [], comments: []
+      });
+      postInput.value = "";
+    });
+
+    // Load posts real-time
+    function loadPosts() {
+      const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+      onSnapshot(q, (snapshot) => {
+        postsContainer.innerHTML = "";
+        snapshot.forEach((docSnap) => {
+          const post = docSnap.data(), postId = docSnap.id, user = auth.currentUser;
+          const liked = post.likes.includes(user.uid);
+
+          const postEl = document.createElement("div");
+          postEl.className = "card post";
+          postEl.innerHTML = `
+            <div class="post-header">
+              <div>
+                <div class="post-author">${post.author}</div>
+                <div class="post-time">${post.createdAt?.toDate().toLocaleString() || ""}</div>
+              </div>
+            </div>
+            <div class="post-content">${post.content}</div>
+            <div class="post-actions">
+              <button class="post-action ${liked ? "liked" : ""}" data-like="${postId}">👍 ${post.likes.length}</button>
+              <button class="post-action">💬 ${post.comments.length}</button>
+            </div>
+            <div class="comments">
+              ${post.comments.map((c, i) => `
+                <div class="comment-item">
+                  <div class="comment-avatar">${c.user[0].toUpperCase()}</div>
+                  <div>
+                    <div class="comment-body">${c.text}</div>
+                    <div class="comment-meta">${c.user}
+                      ${c.uid === user.uid ? `<button class="delete-comment" data-del="${postId}" data-index="${i}">Delete</button>` : ""}
+                    </div>
+                  </div>
+                </div>`).join("")}
+              <form class="comment-form" data-form="${postId}">
+                <input class="comment-input" placeholder="Write a comment..." />
+                <button class="comment-btn" type="submit">Post</button>
+              </form>
+            </div>
+          `;
+          postsContainer.appendChild(postEl);
+        });
+
+        // Like handler
+        document.querySelectorAll("[data-like]").forEach(btn => {
+          btn.onclick = async () => {
+            const id = btn.getAttribute("data-like");
+            const ref = doc(db, "posts", id);
+            if (btn.classList.contains("liked")) {
+              await updateDoc(ref, { likes: arrayRemove(auth.currentUser.uid) });
+            } else {
+              await updateDoc(ref, { likes: arrayUnion(auth.currentUser.uid) });
+            }
+          };
+        });
+
+        // Comment handler
+        document.querySelectorAll("[data-form]").forEach(form => {
+          form.onsubmit = async (e) => {
+            e.preventDefault();
+            const input = form.querySelector("input");
+            if (!input.value.trim()) return;
+            const ref = doc(db, "posts", form.getAttribute("data-form"));
+            await updateDoc(ref, {
+              comments: arrayUnion({ uid: auth.currentUser.uid, user: auth.currentUser.email, text: input.value })
+            });
+            input.value = "";
+          };
+        });
+
+        // Delete comment handler
+        document.querySelectorAll(".delete-comment").forEach(btn => {
+          btn.onclick = async () => {
+            const postId = btn.getAttribute("data-del");
+            const index = parseInt(btn.getAttribute("data-index"));
+            const ref = doc(db, "posts", postId);
+            const postData = snapshot.docs.find(d => d.id === postId).data();
+            const newComments = [...postData.comments];
+            newComments.splice(index, 1);
+            await updateDoc(ref, { comments: newComments });
+          };
+        });
+      });
+    }
+  </script>
+</body>
+</html>
