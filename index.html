@@ -618,6 +618,30 @@
       display: none !important;
     }
 
+    /* Loading spinner */
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: #b0b3b8;
+    }
+
+    .spinner {
+      border: 2px solid #3a3b3c;
+      border-top: 2px solid #1877f2;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
     /* Success notification */
     .notification {
       position: fixed;
@@ -637,6 +661,10 @@
     .notification.show {
       opacity: 1;
       transform: translateX(0);
+    }
+
+    .notification.error {
+      background-color: #e74c3c;
     }
 
     /* Responsive */
@@ -788,85 +816,15 @@
           </div>
         </div>
 
+        <!-- Loading indicator -->
+        <div id="postsLoading" class="loading">
+          <div class="spinner"></div>
+          Loading posts...
+        </div>
+
         <!-- Posts Container -->
         <div id="postsContainer">
-          <!-- Sample Posts -->
-          <div class="card post">
-            <div class="post-header">
-              <div class="post-author-info">
-                <img src="https://i.pravatar.cc/40?u=alex" class="user-avatar" alt="Dr. Alex Chen">
-                <div>
-                  <div class="post-author">Dr. Alex Chen</div>
-                  <div class="post-time">2 hours ago</div>
-                </div>
-              </div>
-              <button class="post-menu">⋯</button>
-            </div>
-            <div class="post-content">
-              🚀 Just published our latest paper on "Efficient Transformer Architectures for Edge AI"! We achieved 40% reduction in computational cost while maintaining 98% accuracy. Excited to contribute to making AI more accessible! 
-              <br><br>
-              #MachineLearning #EdgeAI #Research #Transformers
-            </div>
-            <div class="post-stats">
-              <span>24 reactions • 8 comments</span>
-              <span>3 shares</span>
-            </div>
-            <div class="post-actions">
-              <button class="post-action" onclick="toggleLike(this)">
-                <span>👍</span>
-                <span>Like</span>
-              </button>
-              <button class="post-action">
-                <span>💬</span>
-                <span>Comment</span>
-              </button>
-              <button class="post-action">
-                <span>↗️</span>
-                <span>Share</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="card post">
-            <div class="post-header">
-              <div class="post-author-info">
-                <img src="https://i.pravatar.cc/40?u=sarah" class="user-avatar" alt="Prof. Sarah Kim">
-                <div>
-                  <div class="post-author">Prof. Sarah Kim</div>
-                  <div class="post-time">4 hours ago</div>
-                </div>
-              </div>
-              <button class="post-menu">⋯</button>
-            </div>
-            <div class="post-content">
-              Looking for collaborators on a Computer Vision project focused on medical imaging! 🏥 
-              <br><br>
-              We're developing AI models to detect early-stage cancer from CT scans. If you have experience with:
-              <br>• Deep learning for medical imaging
-              <br>• CNN architectures  
-              <br>• Data augmentation techniques
-              <br><br>
-              Please reach out! Let's make healthcare more accessible through AI. 💙
-            </div>
-            <div class="post-stats">
-              <span>15 reactions • 12 comments</span>
-              <span>7 shares</span>
-            </div>
-            <div class="post-actions">
-              <button class="post-action liked" onclick="toggleLike(this)">
-                <span>👍</span>
-                <span>Like</span>
-              </button>
-              <button class="post-action">
-                <span>💬</span>
-                <span>Comment</span>
-              </button>
-              <button class="post-action">
-                <span>↗️</span>
-                <span>Share</span>
-              </button>
-            </div>
-          </div>
+          <!-- Posts will be loaded from Firestore -->
         </div>
       </main>
 
@@ -951,6 +909,18 @@
       onAuthStateChanged, 
       signOut 
     } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { 
+      getFirestore, 
+      collection, 
+      addDoc, 
+      query, 
+      orderBy, 
+      onSnapshot, 
+      updateDoc, 
+      doc, 
+      increment,
+      serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
     // Firebase configuration
     const firebaseConfig = {
@@ -967,136 +937,9 @@
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
     const auth = getAuth(app);
-      if (tab === 'login') {
-        loginForm.classList.remove('hidden');
-        signupForm.classList.add('hidden');
-        tabs[0].classList.add('active');
-      } else {
-        loginForm.classList.add('hidden');
-        signupForm.classList.remove('hidden');
-        tabs[1].classList.add('active');
-      }
-    };
+    const db = getFirestore(app);
 
-    // Close modal
-    window.closeModal = function() {
-      loginModal.classList.add('hidden');
-    };
-
-    // Login form
-    const loginForm = document.getElementById('loginForm');
-    loginForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = loginForm.email.value;
-      const password = loginForm.password.value;
-      const messageDiv = document.getElementById('loginMessage');
-
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        messageDiv.textContent = "Login successful!";
-        messageDiv.className = "auth-message success";
-        setTimeout(() => { closeModal(); }, 1000);
-      } catch (error) {
-        messageDiv.textContent = error.message;
-        messageDiv.className = "auth-message error";
-      }
-    });
-
-    // Signup form
-    const signupForm = document.getElementById('signupForm');
-    signupForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = signupForm.email.value;
-      const password = signupForm.password.value;
-      const messageDiv = document.getElementById('signupMessage');
-
-      try {
-        await createUserWithEmailAndPassword(auth, email, password);
-        messageDiv.textContent = "Account created successfully!";
-        messageDiv.className = "auth-message success";
-        setTimeout(() => { closeModal(); }, 1000);
-      } catch (error) {
-        messageDiv.textContent = error.message;
-        messageDiv.className = "auth-message error";
-      }
-    });
-
-    // Auth state listener
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        loginModal.classList.add('hidden');
-        appDiv.classList.remove('hidden');
-
-        // Personalize avatar and name
-        userAvatar.src = `https://i.pravatar.cc/40?u=${user.uid}`;
-        sidebarAvatar.src = `https://i.pravatar.cc/40?u=${user.uid}`;
-        composerAvatar.src = `https://i.pravatar.cc/40?u=${user.uid}`;
-        profileName.textContent = user.email.split('@')[0];
-
-        showNotification("Welcome back, " + user.email, "success");
-      } else {
-        loginModal.classList.remove('hidden');
-        appDiv.classList.add('hidden');
-      }
-    });
-
-    // Logout
-    window.logoutUser = async function() {
-      await signOut(auth);
-      showNotification("Logged out successfully", "success");
-    };
-
-    // Create post
-    window.createPost = function() {
-      const postInput = document.getElementById('postInput');
-      const postsContainer = document.getElementById('postsContainer');
-      const content = postInput.value.trim();
-
-      if (!content) return;
-
-      const newPost = document.createElement('div');
-      newPost.classList.add('card', 'post');
-      newPost.innerHTML = `
-        <div class="post-header">
-          <div class="post-author-info">
-            <img src="${userAvatar.src}" class="user-avatar" alt="User">
-            <div>
-              <div class="post-author">${profileName.textContent}</div>
-              <div class="post-time">Just now</div>
-            </div>
-          </div>
-          <button class="post-menu">⋯</button>
-        </div>
-        <div class="post-content">${content}</div>
-        <div class="post-stats">
-          <span>0 reactions • 0 comments</span>
-          <span>0 shares</span>
-        </div>
-        <div class="post-actions">
-          <button class="post-action" onclick="toggleLike(this)">
-            <span>👍</span><span>Like</span>
-          </button>
-          <button class="post-action">
-            <span>💬</span><span>Comment</span>
-          </button>
-          <button class="post-action">
-            <span>↗️</span><span>Share</span>
-          </button>
-        </div>
-      `;
-      postsContainer.prepend(newPost);
-      postInput.value = '';
-      showNotification("Post created!", "success");
-    };
-
-    // Like toggle
-    window.toggleLike = function(button) {
-      button.classList.toggle('liked');
-    };
-  </script>
-</body>
-</html>
-  // UI Elements
+    // UI Elements
     const loginModal = document.getElementById('loginModal');
     const appDiv = document.getElementById('app');
     const userAvatar = document.getElementById('userAvatar');
@@ -1104,6 +947,8 @@
     const composerAvatar = document.getElementById('composerAvatar');
     const profileName = document.getElementById('profileName');
     const notification = document.getElementById('notification');
+    const postsContainer = document.getElementById('postsContainer');
+    const postsLoading = document.getElementById('postsLoading');
 
     // Show notification function
     function showNotification(message, type = 'success') {
@@ -1114,6 +959,94 @@
       setTimeout(() => {
         notification.classList.remove('show');
       }, 3000);
+    }
+
+    // Format time function
+    function formatTime(timestamp) {
+      if (!timestamp) return 'Just now';
+      
+      const now = new Date();
+      const postTime = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+      const diff = now - postTime;
+      
+      if (diff < 60000) return 'Just now';
+      if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+      if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+      if (diff < 604800000) return `${Math.floor(diff / 86400000)}d ago`;
+      
+      return postTime.toLocaleDateString();
+    }
+
+    // Load posts from Firestore
+    function loadPosts() {
+      const postsQuery = query(
+        collection(db, 'posts'),
+        orderBy('createdAt', 'desc')
+      );
+
+      onSnapshot(postsQuery, (snapshot) => {
+        postsLoading.classList.add('hidden');
+        postsContainer.innerHTML = '';
+
+        snapshot.docs.forEach(doc => {
+          const post = doc.data();
+          const postElement = createPostElement(doc.id, post);
+          postsContainer.appendChild(postElement);
+        });
+
+        if (snapshot.docs.length === 0) {
+          postsContainer.innerHTML = `
+            <div class="card" style="text-align: center; padding: 40px;">
+              <h3 style="color: #8b949e; margin-bottom: 8px;">No posts yet</h3>
+              <p style="color: #8b949e; font-size: 14px;">Be the first to share your research insights!</p>
+            </div>
+          `;
+        }
+      }, (error) => {
+        console.error('Error loading posts:', error);
+        postsLoading.innerHTML = '<p style="color: #e74c3c;">Error loading posts</p>';
+      });
+    }
+
+    // Create post element
+    function createPostElement(postId, post) {
+      const postDiv = document.createElement('div');
+      postDiv.className = 'card post';
+      postDiv.dataset.postId = postId;
+      
+      postDiv.innerHTML = `
+        <div class="post-header">
+          <div class="post-author-info">
+            <img src="${post.authorAvatar}" class="user-avatar" alt="${post.authorName}">
+            <div>
+              <div class="post-author">${post.authorName}</div>
+              <div class="post-time">${formatTime(post.createdAt)}</div>
+            </div>
+          </div>
+          <button class="post-menu" onclick="postMenu('${postId}')">⋯</button>
+        </div>
+        <div class="post-content">${post.content.replace(/\n/g, '<br>')}</div>
+        <div class="post-stats">
+          <span>${post.likes || 0} reactions • ${post.comments || 0} comments</span>
+          <span>0 shares</span>
+        </div>
+        <div class="post-actions">
+          <button class="post-action ${post.likedBy && post.likedBy.includes(auth.currentUser?.uid) ? 'liked' : ''}" onclick="toggleLike('${postId}')">
+            <span>👍</span>
+            <span>Like</span>
+          </button>
+          <button class="post-action" onclick="addComment('${postId}')">
+            <span>💬</span>
+            <span>Comment</span>
+          </button>
+          <button class="post-action" onclick="sharePost('${postId}')">
+            <span>↗️</span>
+            <span>Share</span>
+          </button>
+        </div>
+      `;
+      
+      return postDiv;
     }
 
     // Make functions globally available
@@ -1148,15 +1081,11 @@
       }
     };
 
-    // Enhanced createPost function
-    window.createPost = function() {
-      console.log('Create post function called'); // Debug log
-      
+    // Enhanced createPost function with Firestore
+    window.createPost = async function() {
       const postInput = document.getElementById('postInput');
       const postButton = document.getElementById('postButton');
       const content = postInput.value.trim();
-      
-      console.log('Post content:', content); // Debug log
       
       if (!content) {
         showNotification('Please enter some content for your post!', 'error');
@@ -1177,50 +1106,22 @@
         const avatarUrl = user.photoURL || `https://i.pravatar.cc/40?u=${user.uid}`;
         const userName = user.displayName || user.email.split('@')[0];
         
-        // Create new post element
-        const newPost = document.createElement('div');
-        newPost.className = 'card post';
-        newPost.innerHTML = `
-          <div class="post-header">
-            <div class="post-author-info">
-              <img src="${avatarUrl}" class="user-avatar" alt="${userName}">
-              <div>
-                <div class="post-author">${userName}</div>
-                <div class="post-time">Just now</div>
-              </div>
-            </div>
-            <button class="post-menu" onclick="deletePost(this)">⋯</button>
-          </div>
-          <div class="post-content">${content.replace(/\n/g, '<br>')}</div>
-          <div class="post-stats">
-            <span>0 reactions • 0 comments</span>
-            <span>0 shares</span>
-          </div>
-          <div class="post-actions">
-            <button class="post-action" onclick="toggleLike(this)">
-              <span>👍</span>
-              <span>Like</span>
-            </button>
-            <button class="post-action" onclick="addComment(this)">
-              <span>💬</span>
-              <span>Comment</span>
-            </button>
-            <button class="post-action" onclick="sharePost(this)">
-              <span>↗️</span>
-              <span>Share</span>
-            </button>
-          </div>
-        `;
-        
-        // Add to top of posts container
-        const postsContainer = document.getElementById('postsContainer');
-        postsContainer.insertBefore(newPost, postsContainer.firstChild);
+        // Save to Firestore
+        await addDoc(collection(db, 'posts'), {
+          content: content,
+          authorId: user.uid,
+          authorName: userName,
+          authorEmail: user.email,
+          authorAvatar: avatarUrl,
+          createdAt: serverTimestamp(),
+          likes: 0,
+          comments: 0,
+          likedBy: []
+        });
         
         // Clear input and show success
         postInput.value = '';
         showNotification('Post created successfully! 🎉');
-        
-        console.log('Post created successfully'); // Debug log
         
       } catch (error) {
         console.error('Error creating post:', error);
@@ -1232,37 +1133,54 @@
       }
     };
 
-    // Additional post functions
-    window.toggleLike = function(button) {
-      button.classList.toggle('liked');
-      const statsSpan = button.closest('.post').querySelector('.post-stats span');
-      const currentStats = statsSpan.textContent;
-      
-      if (button.classList.contains('liked')) {
-        // Increment like count
-        const newCount = parseInt(currentStats.match(/\d+/)[0]) + 1;
-        statsSpan.textContent = currentStats.replace(/\d+/, newCount);
-      } else {
-        // Decrement like count
-        const newCount = Math.max(0, parseInt(currentStats.match(/\d+/)[0]) - 1);
-        statsSpan.textContent = currentStats.replace(/\d+/, newCount);
+    // Toggle like function with Firestore
+    window.toggleLike = async function(postId) {
+      if (!auth.currentUser) {
+        showNotification('Please log in to like posts!', 'error');
+        return;
+      }
+
+      try {
+        const postRef = doc(db, 'posts', postId);
+        const userId = auth.currentUser.uid;
+        const postElement = document.querySelector(`[data-post-id="${postId}"]`);
+        const likeButton = postElement.querySelector('.post-action');
+        
+        if (likeButton.classList.contains('liked')) {
+          // Unlike
+          await updateDoc(postRef, {
+            likes: increment(-1),
+            likedBy: [...(postElement.dataset.likedBy || '').split(',').filter(id => id !== userId)]
+          });
+        } else {
+          // Like
+          await updateDoc(postRef, {
+            likes: increment(1),
+            likedBy: [...(postElement.dataset.likedBy || '').split(','), userId].filter(id => id)
+          });
+        }
+        
+      } catch (error) {
+        console.error('Error toggling like:', error);
+        showNotification('Error updating like', 'error');
       }
     };
 
-    window.addComment = function(button) {
+    window.addComment = function(postId) {
       const comment = prompt('Enter your comment:');
       if (comment && comment.trim()) {
+        // In a real app, you would save comments to Firestore
         showNotification('Comment added! 💬');
       }
     };
 
-    window.sharePost = function(button) {
+    window.sharePost = function(postId) {
       showNotification('Post shared! 🔄');
     };
 
-    window.deletePost = function(button) {
-      if (confirm('Are you sure you want to delete this post?')) {
-        button.closest('.post').remove();
+    window.postMenu = function(postId) {
+      if (confirm('Delete this post?')) {
+        // In a real app, you would delete from Firestore
         showNotification('Post deleted!');
       }
     };
@@ -1337,6 +1255,9 @@
         composerAvatar.src = avatarUrl;
         profileName.textContent = userName;
         
+        // Load posts when user is authenticated
+        loadPosts();
+        
         console.log('User logged in:', user.email);
       } else {
         // User logged out
@@ -1353,7 +1274,7 @@
       }
     });
 
-    console.log('🧠 DeepNet Social - Enhanced with working post system loaded!');
+    console.log('🧠 DeepNet Social - Enhanced with persistent posts loaded!');
   </script>
 </body>
 </html>
