@@ -1,28 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Simple Firebase Auth Test</title>
-
-<script src="https://www.gstatic.com/firebasejs/9.19.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.19.1/firebase-auth.js"></script>
-
-<script>
-  // Replace with your own Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyBytov9p2TGFudvnwQZ1hSi5f9oXaSKDAQ",
-    authDomain: "deepnet-social-backend.firebaseapp.com",
-    projectId: "deepnet-social-backend",
-    storageBucket: "deepnet-social-backend.firebasestorage.app",
-    messagingSenderId: "689173633913",
-    appId: "1:689173633913:web:b5290dc64ea8fd2b2f2da8",
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-</script>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DeepNet Social - AI Research Community</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
@@ -42,44 +24,64 @@
 </form>
 <div id="loginMessage" style="color:red;"></div>
 
-<script>
-  // Signup event
-  document.getElementById('signupForm').addEventListener('submit', e => {
+<!-- Firebase v12 Modular JS SDK as ES modules -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+
+  // Your Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyBytov9p2TGFudvnwQZ1hSi5f9oXaSKDAQ",
+    authDomain: "deepnet-social-backend.firebaseapp.com",
+    projectId: "deepnet-social-backend",
+    storageBucket: "deepnet-social-backend.firebasestorage.app",
+    messagingSenderId: "689173633913",
+    appId: "1:689173633913:web:b5290dc64ea8fd2b2f2da8",
+    measurementId: "G-B1ENWRY6JK"
+  };
+
+  // Initialize Firebase and Auth
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // Signup handler
+  document.getElementById('signupForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('signupEmail').value;
     const password = document.getElementById('signupPassword').value;
-    auth.createUserWithEmailAndPassword(email, password)
-      .then(cred => {
-        document.getElementById('signupMessage').innerText = 'Signup successful: ' + cred.user.email;
-      })
-      .catch(err => {
-        document.getElementById('signupMessage').innerText = err.message;
-      });
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      document.getElementById('signupMessage').innerText = "Signup successful: " + userCredential.user.email;
+    } catch (error) {
+      document.getElementById('signupMessage').innerText = "Error: " + error.message;
+    }
   });
 
-  // Login event
-  document.getElementById('loginForm').addEventListener('submit', e => {
+  // Login handler
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
-    auth.signInWithEmailAndPassword(email, password)
-      .then(cred => {
-        document.getElementById('loginMessage').innerText = 'Login successful: ' + cred.user.email;
-      })
-      .catch(err => {
-        document.getElementById('loginMessage').innerText = err.message;
-      });
-  });
-
-  // Auth state change listener for debugging (optional)
-  auth.onAuthStateChanged(user => {
-    if(user) {
-      console.log('User is logged in:', user.email);
-    } else {
-      console.log('User is logged out.');
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      document.getElementById('loginMessage').innerText = "Login successful: " + userCredential.user.email;
+    } catch (error) {
+      document.getElementById('loginMessage').innerText = "Error: " + error.message;
     }
   });
-</script>
 
+  // Auth state listener
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      console.log("User is logged in:", user.email);
+    } else {
+      console.log("User is logged out.");
+    }
+  });
+
+  // OPTIONAL: Add a logout button if you want
+  // <button id="logoutBtn">Logout</button>
+  // document.getElementById('logoutBtn').onclick = () => signOut(auth);
+</script>
 </body>
 </html>
