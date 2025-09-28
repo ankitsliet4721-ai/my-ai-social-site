@@ -1,69 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DeepNet Social - Login</title>
-  <style>
-    body { font-family: Arial, sans-serif; max-width: 400px; margin: 50px auto; padding: 20px; }
-    .form-group { margin-bottom: 15px; }
-    label { display: block; margin-bottom: 5px; }
-    input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
-    button { width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    .message { margin-top: 10px; padding: 10px; border-radius: 5px; }
-    .success { background: #d4edda; color: #155724; }
-    .error { background: #f8d7da; color: #721c24; }
-    .hidden { display: none; }
-    #app { margin-top: 20px; }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DeepNet Social - AI Research Community</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="loginModal">
-    <h2>DeepNet Social Login</h2>
-    <div>
-      <button onclick="showLogin()">Login</button>
-      <button onclick="showSignup()">Sign Up</button>
+  <!-- Login Modal -->
+  <div id="loginModal" class="modal" style="display: block;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Welcome to DeepNet Social</h2>
+        <button type="button" class="modal-close" onclick="closeLoginModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="auth-tabs">
+          <button type="button" class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+          <button type="button" class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
+        </div>
+        
+        <form id="loginForm" class="auth-form">
+          <div class="form-group">
+            <label class="form-label" for="loginEmail">Email</label>
+            <input type="email" class="form-control" id="loginEmail" placeholder="Enter your email" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="loginPassword">Password</label>
+            <input type="password" class="form-control" id="loginPassword" placeholder="Enter password" required />
+          </div>
+          <button type="submit" class="btn btn--primary btn--full-width">Login</button>
+          <div id="loginMessage"></div>
+        </form>
+        
+        <form id="signupForm" class="auth-form hidden">
+          <div class="form-group">
+            <label class="form-label" for="signupEmail">Email</label>
+            <input type="email" class="form-control" id="signupEmail" placeholder="Enter your email" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="signupPassword">Password</label>
+            <input type="password" class="form-control" id="signupPassword" placeholder="Create a password" minlength="6" required />
+          </div>
+          <button type="submit" class="btn btn--primary btn--full-width">Sign Up</button>
+          <div id="signupMessage"></div>
+        </form>
+      </div>
     </div>
-    
-    <div id="loginForm">
-      <h3>Login</h3>
-      <div class="form-group">
-        <label for="loginEmail">Email:</label>
-        <input type="email" id="loginEmail" name="loginEmail" required>
-      </div>
-      <div class="form-group">
-        <label for="loginPassword">Password:</label>
-        <input type="password" id="loginPassword" name="loginPassword" required>
-      </div>
-      <button onclick="login()">Login</button>
-      <div id="loginMessage"></div>
-    </div>
-    
-    <div id="signupForm" class="hidden">
-      <h3>Sign Up</h3>
-      <div class="form-group">
-        <label for="signupEmail">Email:</label>
-        <input type="email" id="signupEmail" name="signupEmail" required>
-      </div>
-      <div class="form-group">
-        <label for="signupPassword">Password:</label>
-        <input type="password" id="signupPassword" name="signupPassword" required>
-      </div>
-      <button onclick="signup()">Sign Up</button>
-      <div id="signupMessage"></div>
-    </div>
-  </div>
-  
-  <div id="app" class="hidden">
-    <h2>Welcome to DeepNet Social!</h2>
-    <p>You are logged in successfully.</p>
-    <button onclick="logout()">Logout</button>
   </div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.19.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.19.1/firebase-auth.js"></script>
+  <!-- Main App Layout -->
+  <div id="app" class="app-container hidden">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <div class="header-left">
+          <div class="logo">
+            <span class="logo-icon">🧠</span>
+            <span class="logo-text">DeepNet Social</span>
+          </div>
+        </div>
+        <div class="header-center">
+          <div class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search posts, users, topics..." />
+            <button type="button" class="search-btn">🔍</button>
+          </div>
+        </div>
+        <div class="header-right">
+          <nav class="nav">
+            <a href="#" class="nav-link active" onclick="showSection('home')">Home</a>
+            <a href="#" class="nav-link" onclick="showSection('profile')">Profile</a>
+            <a href="#" class="nav-link" onclick="showSection('research')">Research</a>
+            <a href="#" class="nav-link" onclick="showSection('messages')">Messages</a>
+          </nav>
+          <button type="button" class="theme-toggle" onclick="toggleTheme()">🌙</button>
+          <div class="user-avatar" id="currentUserAvatar">👩‍🔬</div>
+          <button type="button" onclick="logoutUser()">Logout</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <section id="main-content">
+      <!-- Left Sidebar -->
+      <aside class="left-sidebar">
+        <ul class="sidebar-menu">
+          <li><a href="#" class="sidebar-link active" onclick="filterFeed('all')">📰 My Feed</a></li>
+          <li><a href="#" class="sidebar-link" onclick="filterFeed('trending')">📈 Trending Research</a></li>
+          <li><a href="#" class="sidebar-link" onclick="filterFeed('communities')">👥 AI Communities</a></li>
+          <li><a href="#" class="sidebar-link" onclick="filterFeed('bookmarks')">🔖 Bookmarks</a></li>
+          <li><a href="#" class="sidebar-link" onclick="showSettings()">⚙️ Settings</a></li>
+        </ul>
+      </aside>
+
+      <!-- Feed Container -->
+      <main class="feed-container">
+        <!-- Post Composer -->
+        <div class="post-composer card">
+          <div class="composer-header">
+            <div class="user-avatar">👩‍🔬</div>
+            <div class="composer-input-container">
+              <textarea id="postContent" class="composer-input" placeholder="Share your research insights..."></textarea>
+            </div>
+          </div>
+          <div class="composer-tools">
+            <div class="composer-options">
+              <button type="button" class="composer-btn" onclick="togglePostType('text')">📝 Text</button>
+              <button type="button" class="composer-btn" onclick="togglePostType('code')">💻 Code</button>
+              <button type="button" class="composer-btn" onclick="togglePostType('paper')">📄 Paper</button>
+              <button type="button" class="composer-btn" onclick="togglePostType('poll')">📊 Poll</button>
+            </div>
+            <div class="composer-actions">
+              <select class="privacy-select">
+                <option value="public">🌍 Public</option>
+                <option value="research">🔬 Research Community</option>
+                <option value="private">🔒 Private</option>
+              </select>
+              <button type="button" class="btn btn--primary" onclick="createPost()">Post</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Posts Feed -->
+        <div id="postsContainer" class="posts-container">
+          <!-- Posts will be dynamically inserted here -->
+        </div>
+      </main>
+
+      <!-- Right Sidebar -->
+      <aside class="right-sidebar">
+        <div class="sidebar-card card">
+          <h3>Trending Topics</h3>
+          <div id="trendingTopics" class="trending-topics"></div>
+        </div>
+        <div class="sidebar-card card">
+          <h3>Suggested Connections</h3>
+          <div id="suggestedUsers" class="suggested-users"></div>
+        </div>
+        <div class="sidebar-card card">
+          <h3>Research Highlights</h3>
+          <div class="research-highlights">
+            <div class="highlight-item">
+              <h4>NeurIPS 2025 Submissions</h4>
+              <p>Deadline: September 28, 2025</p>
+            </div>
+            <div class="highlight-item">
+              <h4>ICML Workshop Series</h4>
+              <p>Call for papers now open</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </div>
+
+  <!-- Firebase CDN (Version 8 - Working) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
   
+  <!-- App Scripts -->
+  <script src="app.js"></script>
+
+  <!-- Firebase Authentication Script -->
   <script>
+    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBytov9p2TGFudvnwQZ1hSi5f9oXaSKDAQ",
       authDomain: "deepnet-social-backend.firebaseapp.com",
@@ -73,70 +174,104 @@
       appId: "1:689173633913:web:b5290dc64ea8fd2b2f2da8",
       measurementId: "G-B1ENWRY6JK"
     };
-    
+
+    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
     const auth = firebase.auth();
-    
-    function showLogin() {
-      document.getElementById('loginForm').classList.remove('hidden');
-      document.getElementById('signupForm').classList.add('hidden');
-    }
-    
-    function showSignup() {
-      document.getElementById('signupForm').classList.remove('hidden');
-      document.getElementById('loginForm').classList.add('hidden');
-    }
-    
-    function signup() {
-      const email = document.getElementById('signupEmail').value;
-      const password = document.getElementById('signupPassword').value;
-      const msgDiv = document.getElementById('signupMessage');
+
+    // UI Functions
+    function switchAuthTab(tab) {
+      const loginForm = document.getElementById('loginForm');
+      const signupForm = document.getElementById('signupForm');
+      const loginTab = document.querySelector('.auth-tab:nth-child(1)');
+      const signupTab = document.querySelector('.auth-tab:nth-child(2)');
       
-      auth.createUserWithEmailAndPassword(email, password)
-        .then(result => {
-          msgDiv.innerHTML = '<div class="message success">Signup successful!</div>';
-          showApp();
-        })
-        .catch(error => {
-          msgDiv.innerHTML = '<div class="message error">Error: ' + error.message + '</div>';
-        });
+      if (tab === 'login') {
+        loginForm.classList.remove('hidden');
+        signupForm.classList.add('hidden');
+        loginTab.classList.add('active');
+        signupTab.classList.remove('active');
+      } else {
+        loginForm.classList.add('hidden');
+        signupForm.classList.remove('hidden');
+        loginTab.classList.remove('active');
+        signupTab.classList.add('active');
+      }
     }
-    
-    function login() {
-      const email = document.getElementById('loginEmail').value;
-      const password = document.getElementById('loginPassword').value;
-      const msgDiv = document.getElementById('loginMessage');
-      
-      auth.signInWithEmailAndPassword(email, password)
-        .then(result => {
-          msgDiv.innerHTML = '<div class="message success">Login successful!</div>';
-          showApp();
-        })
-        .catch(error => {
-          msgDiv.innerHTML = '<div class="message error">Error: ' + error.message + '</div>';
-        });
+
+    function closeLoginModal() {
+      document.getElementById('loginModal').style.display = 'none';
     }
-    
-    function logout() {
+
+    function openLoginModal() {
+      document.getElementById('loginModal').style.display = 'block';
+    }
+
+    function showApp() {
+      document.getElementById('app').classList.remove('hidden');
+      closeLoginModal();
+    }
+
+    function logoutUser() {
       auth.signOut().then(() => {
-        document.getElementById('loginModal').classList.remove('hidden');
         document.getElementById('app').classList.add('hidden');
+        openLoginModal();
+        alert('Logged out successfully');
       });
     }
-    
-    function showApp() {
-      document.getElementById('loginModal').classList.add('hidden');
-      document.getElementById('app').classList.remove('hidden');
-    }
-    
+
+    // Firebase Authentication
+    document.getElementById('signupForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+      const msg = document.getElementById('signupMessage');
+      
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          msg.style.color = 'green';
+          msg.textContent = `✅ Account created: ${userCredential.user.email}`;
+          setTimeout(() => showApp(), 1000);
+        })
+        .catch(error => {
+          msg.style.color = 'red';
+          msg.textContent = `❌ Error: ${error.message}`;
+        });
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      const msg = document.getElementById('loginMessage');
+      
+      auth.signInWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          msg.style.color = 'green';
+          msg.textContent = `✅ Login successful: ${userCredential.user.email}`;
+          setTimeout(() => showApp(), 1000);
+        })
+        .catch(error => {
+          msg.style.color = 'red';
+          msg.textContent = `❌ Error: ${error.message}`;
+        });
+    });
+
+    // Auth state listener
     auth.onAuthStateChanged(user => {
       if (user) {
+        console.log(`User logged in: ${user.email}`);
         showApp();
       } else {
-        document.getElementById('loginModal').classList.remove('hidden');
-        document.getElementById('app').classList.add('hidden');
+        openLoginModal();
       }
     });
+
+    // Initialize on page load
+    window.onload = () => {
+      switchAuthTab('login');
+    };
   </script>
 </body>
 </html>
