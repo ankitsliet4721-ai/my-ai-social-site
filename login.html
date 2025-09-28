@@ -128,10 +128,12 @@
     </div>
   </div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.19.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.19.1/firebase-auth.js"></script>
+  <!-- Firebase CDN (Version 8 - Compatible) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   
   <script>
+    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBytov9p2TGFudvnwQZ1hSi5f9oXaSKDAQ",
       authDomain: "deepnet-social-backend.firebaseapp.com",
@@ -142,6 +144,7 @@
       measurementId: "G-B1ENWRY6JK"
     };
 
+    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
@@ -201,11 +204,12 @@
       document.getElementById('userEmail').textContent = 'Logged in as: ' + user.email;
     }
 
-    function showLogin() {
+    function showLoginSection() {
       document.getElementById('loginSection').classList.remove('hidden');
       document.getElementById('appSection').classList.add('hidden');
     }
 
+    // Auth state listener
     auth.onAuthStateChanged(user => {
       if (user) {
         showApp(user);
@@ -213,12 +217,6 @@
         showLoginSection();
       }
     });
-
-    function showLoginSection() {
-      document.getElementById('loginSection').classList.remove('hidden');
-      document.getElementById('appSection').classList.add('hidden');
-    }
   </script>
 </body>
 </html>
-
