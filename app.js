@@ -77,15 +77,15 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBytov9p2TGFudvnwQZ1hSi5f9oXaSKDAQ",
-      authDomain: "deepnet-social-backend.firebaseapp.com",
-      projectId: "deepnet-social-backend",
-      storageBucket: "deepnet-social-backend.firebasestorage.app",
-      messagingSenderId: "689173633913",
-      appId: "1:689173633913:web:b5290dc64ea8fd2b2f2da8",
-      measurementId: "G-B1ENWRY6JK"
-    };
+const firebaseConfig = {
+  apiKey: "AIzaSyALLWz-xkvroabNu_ug6ZVdDEmNF3O2eJs",
+  authDomain: "deep-9656b.firebaseapp.com",
+  projectId: "deep-9656b",
+  storageBucket: "deep-9656b.firebasestorage.app",
+  messagingSenderId: "786248126233",
+  appId: "1:786248126233:web:be8ebed2a68281204eff88",
+  measurementId: "G-FWC45EBFFP"
+};
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
